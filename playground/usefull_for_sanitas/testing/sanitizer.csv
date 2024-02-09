@@ -1,0 +1,3 @@
+id,user,name,street,city,state,zip,contactperson,phone,email,profile_image,CPphone,CPemail,longitude,latitude,certificate,isChecked,isSubmitted,is_verified
+3,1,Anirudha,sahu,Bhubaneswar,Andaman and Nicobar Islands,721003,Anirudha,6358662756,anirudha2685@gmail.com,Sanitizerprofile/default_profile_image_h6ZABzH.jpg,3339855649,al@cu.vu,Tltichprpcwyptyuhe,Pcssxoyyen,sanitizerDoc/favicon-removebg-preview.png,1,0,0
+2,3,Aims Hospital,gothapatnam,Bhubaneswar,Odisha,751003,Virju patel,7413962095,diraiims@aiims.ac.in,Sanitizerprofile/R.jpg,2323342331,virjupatel@gmail.com,85.735887,20.2910715,sanitizerDoc/Screenshot_2024-02-25_191215_nr2o4K5.jpg,0,1,1

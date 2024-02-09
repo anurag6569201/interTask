@@ -6,7 +6,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from django.conf import settings
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
-
+from chatbot.models import QueryResponse, PDFDocument
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -15,13 +16,14 @@ google_gemini_api = os.getenv("GOOGLE_API_KEY")
 # Initialize the language model
 llm_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_gemini_api)
 
+# Function to dynamically get CSV paths
+def get_csv_paths():
+    links_csv = PDFDocument.objects.filter(file_type='links').first()
+    text_csv = PDFDocument.objects.filter(file_type='text').first()
 
-# Load CSV files
-output_csv = os.path.join(settings.MEDIA_ROOT, 'data_csv/links.csv')
-textual_csv =  os.path.join(settings.MEDIA_ROOT, 'data_csv/text.csv')
-
-# Create CSV agents for links
-links_agent = create_csv_agent(llm_model, output_csv, verbose=True, allow_dangerous_code=True, query_type="lookup", result_limit=10, timeout=10)
+    output_csv_path = os.path.join(settings.MEDIA_ROOT, links_csv.pdf_file.name)
+    textual_csv_path = os.path.join(settings.MEDIA_ROOT, text_csv.pdf_file.name)
+    return output_csv_path, textual_csv_path
 
 # Memory for conversation context
 memory = {}
@@ -34,11 +36,8 @@ def save_to_memory(user_id, conversation_context):
 
 def get_from_memory(user_id):
     return memory.get(get_memory_key(user_id), "")
+
 def is_relevant_query(user_input):
-    """
-    Check if the user input is relevant to the company's links or textual data.
-    Returns True if it is, otherwise False.
-    """
     relevant_keywords = [
         "SEO services", 
         "business growth strategies", 
@@ -73,12 +72,18 @@ def is_relevant_query(user_input):
     
     return any(keyword.lower() in user_input.lower() for keyword in relevant_keywords)
 
-
+# Function to create an agent with memory handling
 def create_agent_with_memory():
     def handle_request(user_id, user_input):
         # Retrieve context from memory
         context = get_from_memory(user_id)
         
+        # Get the dynamically updated CSV paths
+        output_csv, textual_csv = get_csv_paths()
+
+        # Create CSV agents for links
+        links_agent = create_csv_agent(llm_model, output_csv, verbose=True, allow_dangerous_code=True, query_type="lookup", result_limit=10, timeout=10)
+
         # Handle relevant queries
         if is_relevant_query(user_input):
             detailed_query_for_links = f"""
@@ -128,7 +133,11 @@ def create_agent_with_memory():
             )
             data_prompt = prompt_template.format(user_input=user_input, combined_response=combined_response)
             llm_response = llm_model.predict(data_prompt)
-
+            QueryResponse.objects.create(
+                user_id=user_id,
+                user_query=user_input,
+                ai_response=llm_response
+            )
             return {"query": user_input, "response": llm_response}
 
         # Handle non-relevant queries
@@ -142,17 +151,23 @@ def create_agent_with_memory():
                 """
             )
             text_content = pd.read_csv(textual_csv).to_string()
-            fallback_data = fallback_prompt.format(user_input=user_input,text_content=text_content)
+            fallback_data = fallback_prompt.format(user_input=user_input, text_content=text_content)
             llm_response = llm_model.predict(fallback_data)
+            QueryResponse.objects.create(
+                user_id=user_id,
+                user_query=user_input,
+                ai_response=llm_response
+            )
             save_to_memory(user_id, f"{context}\n{user_input}\n{llm_response}")
             return {"query": user_input, "response": llm_response}
 
     return handle_request
 
+def get_random_user_id():
+    return str(uuid.uuid4())
 
-
-# Create the agent with memory
-user_id = 'user_1234'
+# Usage
+user_id = get_random_user_id()
 handle_request = create_agent_with_memory()
 
 def get_response(message):

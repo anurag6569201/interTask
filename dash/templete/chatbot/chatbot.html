@@ -424,6 +424,43 @@
         color: #8f1cd1 !important;
         text-decoration: underline !important;
     }
+    #id_file_type{
+        width: 150px;padding: 10px;
+        background-color: rgba(0, 0, 0, 0.1);
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        color: white;
+    }
+    .chat-message {
+        margin-bottom: 20px;
+    }
+    .chat-table {
+        width: 100%;
+        margin: 20px 0;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0;
+        margin-top: 10px;
+    }
+    .container {
+            margin: 20px;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        /* Different color styles for users */
+        .user-color-False {
+            background-color: #212131 !important;
+        }
+
+        .user-color-True {
+            background-color: #1f1c27 !important;
+        }
 </style>
 {% endblock stylesheets %}
 
@@ -453,7 +490,32 @@
             </script>
             {% endif %}
             <div class="row">
-                <div class="container-fluid col-md-6">
+                <div class="col-md-6">
+                    <div class="messages p-3" style="display: flex; justify-content: space-between; flex-direction: column;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 style="margin-bottom: 5px;">Current Documents</h3>
+                                <br><br>
+                                <h4>Links CSV</h4>
+                                {% if links_csv %}
+                                    <span>{{ links_csv.pdf_file.name }}</span>
+                                    <a href="{% url 'chatbot:edit_csv' links_csv.id %}"><button class="btn btn-sm">Edit</button></a><br>
+                                {% else %}
+                                    <p>No Links CSV available.</p>
+                                {% endif %}
+                                <br><br>
+                                <h4>Text CSV</h4>
+                                {% if text_csv %}
+                                    <span>{{ text_csv.pdf_file.name }}</span>
+                                    <a href="{% url 'chatbot:edit_csv' text_csv.id %}"><button class="btn btn-sm">Edit</button></a><br>
+                                {% else %}
+                                    <p>No Text CSV available.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
                     <div class="message-container">
                         <div class="messages mb-3">
                             <div id="uploading-file" class="uploading-file">
@@ -462,8 +524,8 @@
                                     {{ form.as_p }}
                                     <button id="form-submitted-btn" type="submit">Upload</button>
                                 </form>
-                                <h2 style="text-align: center;">Wanted to Update data !! <br> <b>Sunny AI</b></h2>
-                                <span>** Only PDF supported **</span>
+                                <h2 style="text-align: center;">Want to Update Data !! <br> <b>Sunny AI</b></h2>
+                                <span>** Only CSV supported **</span>
                                 <img src="{% static 'assets/img/upload.png' %}" alt="">
                             </div>
                             <div id="loading-data" class="loading-data" style="display: none;">
@@ -475,32 +537,48 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="messages p-3"
-                        style="display: flex;justify-content: space-between;flex-direction: column;">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h3 style="margin-bottom: 5px;">Current Document !!</h3>
-                                {% if latest_doc %}
-                                <a class="btn btn-sm btn-sm-success" target="_blank"
-                                    href="{{ latest_doc.pdf_file.url }}">View the Current Doc</a>
-                                {% else %}
-                                <p>No document available.</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h3 style="margin-bottom: 5px;">Current Prompt !!</h3>
-                                <form method="post">
-                                    {% csrf_token %}
-                                    {{ prompt_form.as_p }}
-                                    <button type="submit" class="btn btn-sm btn-sm-info">Update Prompt</button>
-                                </form>
-                            </div>
-                        </div>
+                <div class="col-md-12">
+                    <div id="chat-box">
+                        <table class="display chat-table" id="chat-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>User Query</th>
+                                    <th>AI Response</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user_id, chats in grouped_chats.items %}
+                                    {% for chat in chats %}
+                                        <tr class="user-color-{{ forloop.parentloop.counter0|divisibleby:2 }}">
+                                            <td>{{ user_id }}</td> <!-- Display User ID -->
+                                            <td>{{ chat.user_query|safe }}</td> <!-- Display User Query with HTML content -->
+                                            <td>{{ chat.ai_response|safe }}</td> <!-- Display AI Response with HTML content -->
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+                <script
+                src="https://code.jquery.com/jquery-3.7.1.min.js"
+                integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+                crossorigin="anonymous"></script>
+                <script>
+                    $(document).ready(function() {
+                        $('#chat-table').DataTable({
+                            "paging": true,
+                            "searching": true,
+                            "info": true,
+                            "columnDefs": [
+                                { "width": "15%", "targets": 0 }, // Adjust the width of the User ID column
+                                { "width": "15%", "targets": 1 }, // Adjust the width of the User Query column
+                                { "width": "40%", "targets": 2 }, // Adjust the width of the AI Response column
+                            ]
+                        });
+                    });
+                </script>
             </div>
 
             <script>
