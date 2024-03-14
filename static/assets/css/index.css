@@ -2,3 +2,8 @@ nav{
     background-color: transparent;
     border-bottom: 1px solid rgb(206, 206, 206);
 }
+.nav-item .nav-link img{
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}

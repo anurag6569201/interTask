@@ -21,19 +21,46 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-                <a class="navbar-brand" href="#">Hidden brand</a>
+                <a class="navbar-brand" href="#"><img src="../../static/assets/images/logo.png" alt="" width="120px" height="40px"></a>
                 <form class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                 </form>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <!-- Changed class from "me-auto" to "ms-auto" -->
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        <a class="nav-link" aria-current="page" href="#">Browse Events</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Host an event
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownLink">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Help
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownLink">
+                            <li><a class="dropdown-item" href="#">Helping Hand</a></li>
+                            <li><a class="dropdown-item" href="#">Customer Care</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownEmail" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="../../static/assets/images/avtar.png" width="20px" height="20px" alt="" style="margin-right: .2em;">{{ current_user.email }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownEmail"> <!-- Added dropdown-menu to create a dropdown content -->
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>
