@@ -2,39 +2,106 @@
 {% load static %}
 
 {% block content %}
-    <div class="container">
-            <br>
-            <div class="col-md-12 upperHeading">
-                <span class="heading">Shows</span>
-                <div class="col-md-4 add_btn">
-                    <a class="add_btn_tag" style="text-decoration: none;color: grey;display: flex;align-items: center;justify-content: right;" href="{% url 'core:addShow' %}"><span class="material-symbols-outlined"> add </span>Add New Show</a>
-                </div>
-            </div><hr style="margin: 0;">
-            <br>
-            <div class="col-md-12 EventShows">
+
+<div class="container">
+    <br>
+    <div class="col-md-12 upperHeading">
+        <span class="heading">Shows</span>
+        <div class="col-md-4 add_btn">
+            <a class="add_btn_tag" style="text-decoration: none;color: grey;display: flex;align-items: center;justify-content: right;" href="{% url 'core:addShow' %}"><span class="material-symbols-outlined"> add </span>Add New Show</a>
+        </div>
+    </div><hr style="margin: 0;margin-bottom: .5em;">
+    <div class="col-md-12 .selectionBtnSet">
+        <div class="selectionBtn">
+            <button id="globalBtn" class="active">Global</button>
+            <button id="userSpecificBtn">User Specific</button>
+        </div>
+    </div>
+    <br>
+    <div class="col-md-12 EventShows" id="globalEvents">
+        <div class="row">
+            {% for event in eventShow %}
+            <div class="col-md-12 EventsList global-event">
                 <div class="row">
-                    {% for event in eventShow %}
-                    <div class="col-md-12 EventsList">
+                    <div class="col-md-4 event_image">
+                        <img src="{{event.eventImage.url}}" alt="">
+                    </div>
+                    <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-4 event_image">
-                                <img src="{{event.eventImage.url}}" alt="">
-                            </div>
-                            <div class="col-md-6">
-                                <div class="row">
-                                    <div class="col-md-12">{{ event.showName }}</div>
-                                    <div class="col-md-12">{{ event.showTiming }}</div>
-                                    <div class="col-md-12">{{ event.showVenue }}</div>
-                                    <div class="col-md-12">Starts At ${{ event.showPrice }}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-2 btn_sharingAndLike">
-                                <span class="material-symbols-outlined"> ios_share </span>
-                                <span class="material-symbols-outlined">favorite</span>
-                            </div>
+                            <div class="col-md-12">{{ event.showName }}</div>
+                            <div class="col-md-12">{{ event.showTiming }}</div>
+                            <div class="col-md-12">{{ event.showVenue }}</div>
+                            <div class="col-md-12">Starts At ${{ event.showPrice }}</div>
                         </div>
                     </div>
-                    {% endfor %}
+                    <div class="col-md-2 btn_sharingAndLike">
+                        <span class="material-symbols-outlined"> ios_share </span>
+                        <form class="like-form" action="{% url 'core:like_event' event_id=event.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="like-event-btn" data-event-id="{{ event.id }}">
+                                {% if event in liked_events %}
+                                    <i class="fas fa-heart">{{ event.likes.count }}</i>
+                                {% else %}
+                                    <i class="far fa-heart">{{ event.likes.count }}</i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
+        </div>
     </div>
+    <div class="col-md-12 EventShows" id="userSpecificEvents" style="display: none;">
+        <div class="row">
+            {% for event in eventShowsUser %}
+            <div class="col-md-12 EventsList user-specific-event">
+                <div class="row">
+                    <div class="col-md-4 event_image">
+                        <img src="{{event.eventImage.url}}" alt="">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12">{{ event.showName }}</div>
+                            <div class="col-md-12">{{ event.showTiming }}</div>
+                            <div class="col-md-12">{{ event.showVenue }}</div>
+                            <div class="col-md-12">Starts At ${{ event.showPrice }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 btn_sharingAndLike">
+                        <span class="material-symbols-outlined"> ios_share </span>
+                        <form class="like-form" action="{% url 'core:like_event' event_id=event.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="like-event-btn" data-event-id="{{ event.id }}">
+                                {% if event in liked_events %}
+                                    <i class="fas fa-heart">{{ event.likes.count }}</i>
+                                {% else %}
+                                    <i class="far fa-heart">{{ event.likes.count }}</i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("globalBtn").addEventListener("click", function() {
+        document.getElementById("globalEvents").style.display = "block";
+        document.getElementById("userSpecificEvents").style.display = "none";
+        document.getElementById("globalBtn").classList.add("active");
+        document.getElementById("userSpecificBtn").classList.remove("active");
+    });
+
+    document.getElementById("userSpecificBtn").addEventListener("click", function() {
+        document.getElementById("globalEvents").style.display = "none";
+        document.getElementById("userSpecificEvents").style.display = "block";
+        document.getElementById("userSpecificBtn").classList.add("active");
+        document.getElementById("globalBtn").classList.remove("active");
+    });
+</script>
+
 {% endblock content %}

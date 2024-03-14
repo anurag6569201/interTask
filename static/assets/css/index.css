@@ -39,3 +39,39 @@ nav{
 .EventsList{
     margin-bottom: 1.4em;
 }
+.like-event-btn{
+    background-color: transparent;
+    border: none;
+}
+.like-event-btn i{
+    font-size: .7em;
+}
+.like-event-btn i:last-child{
+    color: red;
+}
+.like-event-btn i:first-child{
+    color: grey;
+}
+.selectionBtnSet{
+    display: flex;
+    align-items: center;
+    justify-content: right;
+}
+.selectionBtn{
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    gap: .5em;
+}
+.selectionBtn button{
+    background-color: transparent;
+    border: 1px solid grey;
+    border-radius: .3em;
+    padding: .2em .5em;
+}
+#userSpecificBtn.active,
+#globalBtn.active{
+    background-color: rgb(184, 184, 184);
+    color: white;
+    font-weight: 400;
+}
