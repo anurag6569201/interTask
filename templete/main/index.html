@@ -2,5 +2,39 @@
 {% load static %}
 
 {% block content %}
-    hello
+    <div class="container">
+            <br>
+            <div class="col-md-12 upperHeading">
+                <span class="heading">Shows</span>
+                <div class="col-md-4 add_btn">
+                    <a class="add_btn_tag" style="text-decoration: none;color: grey;display: flex;align-items: center;justify-content: right;" href="{% url 'core:addShow' %}"><span class="material-symbols-outlined"> add </span>Add New Show</a>
+                </div>
+            </div><hr style="margin: 0;">
+            <br>
+            <div class="col-md-12 EventShows">
+                <div class="row">
+                    {% for event in eventShow %}
+                    <div class="col-md-12 EventsList">
+                        <div class="row">
+                            <div class="col-md-4 event_image">
+                                <img src="{{event.eventImage.url}}" alt="">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-12">{{ event.showName }}</div>
+                                    <div class="col-md-12">{{ event.showTiming }}</div>
+                                    <div class="col-md-12">{{ event.showVenue }}</div>
+                                    <div class="col-md-12">Starts At ${{ event.showPrice }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 btn_sharingAndLike">
+                                <span class="material-symbols-outlined"> ios_share </span>
+                                <span class="material-symbols-outlined">favorite</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+    </div>
 {% endblock content %}

@@ -1,0 +1,55 @@
+#id_showName,
+#id_showPrice,
+#id_showVenue{
+    border: none;
+    border-bottom: 1px solid;
+    width: 100%;
+    display: inline-block;
+}
+#id_showName:focus-visible,
+#id_showPrice:focus-visible,
+#id_showVenue:focus-visible {
+    outline: none;
+}
+.showData{
+    margin-bottom: .2em;
+    display: flexbox;
+    align-items: center;
+}
+.event_image_add{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.event_image_add #id_eventImage{
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+.uploadImage{
+    position: absolute;
+    height: auto;
+    z-index: -1;
+    width: 2em;
+    height: 2em;
+}
+.submitEvent{
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    margin-top: .4em;
+}
+.submitEvent button{
+    padding: .2em 1em;
+    border: 1px solid black;
+    background-color: transparent;
+    border-radius: .3em;
+    color: black;
+    font-weight: 600;
+}
+.submitEvent button:hover{
+    background-color: black;
+    font-weight: 600;
+    color: white;
+}
