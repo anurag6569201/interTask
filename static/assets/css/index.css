@@ -30,6 +30,7 @@ nav{
 }
 .EventShows .event_image img{
     max-height: 10em;
+    width: 17em;
 }
 .EventShows .add_btn a span{
     font-size: 2em;
