@@ -7,8 +7,9 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
+@login_required(login_url='userauths:sign-in')
 def index(request):
     eventShows = EventShow.objects.all()
     eventShowsUser = EventShow.objects.filter(user=request.user)
@@ -25,9 +26,11 @@ def index(request):
 
     return render(request, "main/index.html", context)
 
+@login_required(login_url='userauths:sign-in')
 def ErrorPage(request):
     return render(request,"main/error.html")
 
+@login_required(login_url='userauths:sign-in')
 def addShow(request):
     if request.method == 'POST':
         Eform = EventForm(request.POST, request.FILES)
