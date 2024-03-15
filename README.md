@@ -8,11 +8,11 @@ Welcome to our internship task repository! This project focuses on implementing 
 
 ## Snapshots of the UI and Web app
 
-![Image 1](https://drive.google.com/file/d/1ONGbJg22f04g9DsqKp2Kx1sFl4wNfo8_/view?usp=sharing)
-![Image 2](https://drive.google.com/file/d/1OG5vUSJDD0wGtp0iO7BIZuDqzglsxxXO/view?usp=sharing)
-![Image 3](https://drive.google.com/file/d/1OBanRXMEKzzW4fgMKgk-PbjyzA0-YYwY/view?usp=sharing)
-![Image 4](https://drive.google.com/file/d/1OOf_D321B02y2Q7NLPiNkn7u29z75ELZ/view?usp=sharing)
-![Image 5](https://drive.google.com/file/d/1OAkQSa_8v-ydy3BKD5CWwWSJBkBTH5lc/view?usp=sharing)
+![Image 1](https://github.com/anurag6569201/interTask/blob/main/readmeImages/1.jpg)
+![Image 2](https://github.com/anurag6569201/interTask/blob/main/readmeImages/2.jpg)
+![Image 3](https://github.com/anurag6569201/interTask/blob/main/readmeImages/3.jpg)
+![Image 4](https://github.com/anurag6569201/interTask/blob/main/readmeImages/4.jpg)
+![Image 5](https://github.com/anurag6569201/interTask/blob/main/readmeImages/5.jpg)
 
 ### 1. Event Posting
 Users can post events with details such as name of the event,date, time,location and price. These events will be visible to all users.
