@@ -7,7 +7,7 @@ Welcome to our internship task repository! This project focuses on implementing 
 3. Implement categorization of global users and user-specific categorization.
 
 ## Snapshots of the UI and Web app
-
+![Vedio 0](https://github.com/anurag6569201/interTask/blob/main/readmeImages/div.mp4)
 ![Image 1](https://github.com/anurag6569201/interTask/blob/main/readmeImages/1.jpg)
 ![Image 2](https://github.com/anurag6569201/interTask/blob/main/readmeImages/2.jpg)
 ![Image 3](https://github.com/anurag6569201/interTask/blob/main/readmeImages/3.jpg)
