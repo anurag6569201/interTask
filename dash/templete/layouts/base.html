@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet"/>
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets/css/nucleo-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/black-dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/theme-switcher.css' %}">
+    <!-- Specific Page CSS goes HERE  -->
+    {% block stylesheets %}{% endblock stylesheets %}
+        
+</head>
+<body class="">
+
+    <div class="wrapper">
+
+        {% include 'includes/sidebar.html' %}
+
+        <div class="main-panel">
+
+            {% include 'includes/navigation.html' %}
+
+            {% block content %}{% endblock content %}
+
+            {% include 'includes/footer.html' %}
+
+        </div>
+    </div>
+
+    {% include 'includes/fixed-plugin.html' %}
+
+    {% include 'includes/scripts.html' %}
+
+    <!-- Specific Page JS goes HERE  -->
+    {% block javascripts %}{% endblock javascripts %}
+
+</body>
+</html>
