@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 
 @login_required(login_url='userauths:sign-in')
 def index(request):
