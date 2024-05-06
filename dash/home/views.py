@@ -3,15 +3,29 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
-
+import json
 
 @login_required(login_url="/login/")
 def index(request):
-    context = {'segment': 'index'}
+    # Load data from JSON file
+    with open('jsdata.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    # Process the data as needed
+    labels = [entry['published'] for entry in data]
+    relevances = [entry['relevance'] for entry in data]
+    likelihoods = [entry['likelihood'] for entry in data]
+
+    # Pass data to template
+    context = {
+        'segment': 'index',
+        'labels': labels,
+        'relevances': relevances,
+        'likelihoods': likelihoods,
+    }
 
     html_template = loader.get_template('home/index.html')
     return HttpResponse(html_template.render(context, request))
-
 
 @login_required(login_url="/login/")
 def pages(request):
