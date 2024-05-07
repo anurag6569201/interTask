@@ -13,44 +13,160 @@
                 <div class="card card-chart">
                     <div class="card-header ">
                         <div class="row">
-                            <canvas id="myChart" width="800" height="400"></canvas>
-
-                            <script>
-                                var labels = {{ labels|safe }};
-                                var relevances = {{ relevances|safe }};
-                                var likelihoods = {{ likelihoods|safe }};
-
-                                var ctx = document.getElementById('myChart').getContext('2d');
-                                var myChart = new Chart(ctx, {
-                                    type: 'line',
-                                    data: {
-                                        labels: labels,
-                                        datasets: [{
-                                            label: 'Relevance',
-                                            data: relevances,
-                                            borderColor: 'rgba(255, 99, 132, 1)',
-                                            borderWidth: 1,
-                                            fill: false
-                                        }, {
-                                            label: 'Likelihood',
-                                            data: likelihoods,
-                                            borderColor: 'rgba(54, 162, 235, 1)',
-                                            borderWidth: 1,
-                                            fill: false
-                                        }]
-                                    },
-                                    options: {
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true
-                                            },
-                                            x: {
-                                                display: false
-                                            },
+                            <div class="col-md-12">
+                                <canvas id="intensityTopicChart" width="100%" style="min-height: 90vh;"></canvas>
+                                <script>
+                                    var avgIntensityByTopic = {{ avg_intensity_by_topic|safe }};
+                                    var ctx = document.getElementById('intensityTopicChart').getContext('2d');
+                                    var intensityTopicChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: Object.keys(avgIntensityByTopic),
+                                            datasets: [{
+                                                label: 'Average Intensity',
+                                                data: Object.values(avgIntensityByTopic),
+                                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                                borderColor: 'rgba(54, 162, 235, 1)',
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            }
                                         }
-                                    }
-                                });
-                            </script>
+                                    });
+                                </script>
+                            </div>
+                            <div class="col-md-12">
+                                <canvas id="likelihoodTopicChart" width="100%" style="min-height: 90vh;"></canvas>
+                                <script>
+                                    var avgLikelihoodByTopic = {{ avg_likelihood_by_topic|safe }};
+                                    var ctx = document.getElementById('likelihoodTopicChart').getContext('2d');
+                                    var likelihoodTopicChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: Object.keys(avgLikelihoodByTopic),
+                                            datasets: [{
+                                                label: 'Average Likelihood',
+                                                data: Object.values(avgLikelihoodByTopic),
+                                                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                                                borderColor: 'rgba(255, 159, 64, 1)',
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    suggestedMax: 5 // Adjust based on your data range
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                            </div>
+                            <div class="col-md-12">
+                                <canvas id="relevanceTopicChart" width="400" style="min-height: 90vh;"></canvas>
+                                <script>
+                                    var avgRelevanceByTopic = {{ avg_relevance_by_topic|safe }};
+                                    var ctx = document.getElementById('relevanceTopicChart').getContext('2d');
+                                    var relevanceTopicChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: Object.keys(avgRelevanceByTopic),
+                                            datasets: [{
+                                                label: 'Average Relevance',
+                                                data: Object.values(avgRelevanceByTopic),
+                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                borderColor: 'rgba(75, 192, 192, 1)',
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    suggestedMax: 5 // Adjust based on your data range
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <canvas id="sectorPieChart" width="400" height="400"></canvas>
+                                <script>
+                                    var dataBySector = {{ data_by_sector|safe }};
+                                    var ctx = document.getElementById('sectorPieChart').getContext('2d');
+
+                                    var sectors = Object.keys(dataBySector);
+                                    var data = sectors.map(function(sector) {
+                                        return dataBySector[sector].length;
+                                    });
+
+                                    var sectorPieChart = new Chart(ctx, {
+                                        type: 'pie',
+                                        data: {
+                                            labels: sectors,
+                                            datasets: [{
+                                                data: data,
+                                                backgroundColor: [
+                                                    'rgba(255, 99, 132, 0.6)',
+                                                    'rgba(54, 162, 235, 0.6)',
+                                                    'rgba(255, 206, 86, 0.6)',
+                                                    'rgba(75, 192, 192, 0.6)',
+                                                    'rgba(153, 102, 255, 0.6)',
+                                                    'rgba(255, 159, 64, 0.6)',
+                                                    'rgba(255, 99, 132, 0.6)',
+                                                    'rgba(54, 162, 235, 0.6)',
+                                                    'rgba(255, 206, 86, 0.6)',
+                                                    'rgba(75, 192, 192, 0.6)',
+                                                    // Add more colors as needed
+                                                ],
+                                                borderWidth: 1
+                                            }]
+                                        }
+                                    });
+                                </script>
+                            </div>
+                            <div class="col-md-6">
+                                <canvas id="impactBarChart" width="400" height="400"></canvas>
+
+                                <script>
+                                    var dataByImpact = {{ data_by_impact|safe }};
+                                    var ctx = document.getElementById('impactBarChart').getContext('2d');
+
+                                    var impacts = Object.keys(dataByImpact);
+                                    var data = impacts.map(function(impact) {
+                                        return dataByImpact[impact].length;
+                                    });
+
+                                    var impactBarChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: impacts,
+                                            datasets: [{
+                                                label: 'Data Count',
+                                                data: data,
+                                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
