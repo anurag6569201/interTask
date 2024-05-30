@@ -38,44 +38,92 @@
     }
 </style>
 
-<div class="container">
+<div class="container-fluid">
     <div class="col-md-12" style="display: flex;align-items: center;justify-content: center;flex-direction: column;">
         <h2>Processed Data</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>State</th>
-                    <th>DPD</th>
-                    <th>Odd DPD Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in result_data|slice:"-3:" %}
-                <tr>
-                    <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
-                    <td>{{ row.DPD }}</td>
-                    <td>{{ row.count }}</td>
-                </tr>
-                {% endfor %}
-                <tr>
-                    <td>...</td>
-                    <td>...</td>
-                    <td>...</td>
-                </tr>
-                <tr>
-                    <td>...</td>
-                    <td>...</td>
-                    <td>...</td>
-                </tr>
-                {% for row in result_data|slice:":3" %}
-                <tr>
-                    <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
-                    <td>{{ row.DPD }}</td>
-                    <td>{{ row.count }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Summary statistics -->
+        <h2>Total Records: {{ summary_stats.total_records }}</h2>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <h3>Records by State:</h3>
+                <ul id="records-by-state">
+                    {% for state, count in summary_stats.records_by_state.items %}
+                    <li>{{ state }}: {{ count }}</li>
+                    {% endfor %}
+                </ul>
+                <button class="view-more download-btn" data-target="records-by-state">View More</button>
+            </div>
+            
+            <div class="col-md-3">
+                <h3>Average DPD:</h3>
+                <ul id="average-dpd-by-state">
+                    {% for state, avg_dpd in summary_stats.average_dpd_by_state.items %}
+                    <li>{{ state }}: {{ avg_dpd }}</li>
+                    {% endfor %}
+                </ul>
+                <button class="view-more download-btn" data-target="average-dpd-by-state">View More</button>
+            </div>
+            
+            <div class="col-md-3">
+                <h3>Highest DPD:</h3>
+                <ul id="highest-dpd-by-state">
+                    {% for state, max_dpd in summary_stats.highest_dpd_by_state.items %}
+                    <li>{{ state }}: {{ max_dpd }}</li>
+                    {% endfor %}
+                </ul>
+                <button class="view-more download-btn" data-target="highest-dpd-by-state">View More</button>
+            </div>
+            
+            <div class="col-md-3">
+                <h3>Lowest DPD:</h3>
+                <ul id="lowest-dpd-by-state">
+                    {% for state, min_dpd in summary_stats.lowest_dpd_by_state.items %}
+                    <li>{{ state }}: {{ min_dpd }}</li>
+                    {% endfor %}
+                </ul>
+                <button class="view-more download-btn" data-target="lowest-dpd-by-state">View More</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>State</th>
+                            <th>DPD</th>
+                            <th>Odd DPD Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in result_data|slice:"-3:" %}
+                        <tr>
+                            <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
+                            <td>{{ row.DPD }}</td>
+                            <td>{{ row.count }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>...</td>
+                            <td>...</td>
+                            <td>...</td>
+                        </tr>
+                        <tr>
+                            <td>...</td>
+                            <td>...</td>
+                            <td>...</td>
+                        </tr>
+                        {% for row in result_data|slice:":3" %}
+                        <tr>
+                            <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
+                            <td>{{ row.DPD }}</td>
+                            <td>{{ row.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div>
             <a class="download-btn" href="{{ output_csv_path }}" download="output.csv">Download CSV</a>
             <a class="download-btn" href="{{ output_xlsx_path }}" download>Download XLSX</a>        
