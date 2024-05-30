@@ -85,43 +85,45 @@
                 <button class="view-more download-btn" data-target="lowest-dpd-by-state">View More</button>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-10">
-                <table style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>State</th>
-                            <th>DPD</th>
-                            <th>Odd DPD Count</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in result_data|slice:"-3:" %}
-                        <tr>
-                            <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
-                            <td>{{ row.DPD }}</td>
-                            <td>{{ row.count }}</td>
-                        </tr>
-                        {% endfor %}
-                        <tr>
-                            <td>...</td>
-                            <td>...</td>
-                            <td>...</td>
-                        </tr>
-                        <tr>
-                            <td>...</td>
-                            <td>...</td>
-                            <td>...</td>
-                        </tr>
-                        {% for row in result_data|slice:":3" %}
-                        <tr>
-                            <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
-                            <td>{{ row.DPD }}</td>
-                            <td>{{ row.count }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="container">
+            <div class="row" style="width: 100%;">
+                <div class="col-md-10">
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>DPD</th>
+                                <th>Odd DPD Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in result_data|slice:"-3:" %}
+                            <tr>
+                                <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
+                                <td>{{ row.DPD }}</td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                <td>...</td>
+                            </tr>
+                            {% for row in result_data|slice:":3" %}
+                            <tr>
+                                <td>{{ row.Cust_State }}</td> <!-- Adjusted to match the DataFrame column name -->
+                                <td>{{ row.DPD }}</td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div>
