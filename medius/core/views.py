@@ -50,9 +50,6 @@ def process_file(file_path, file_format, fs):
     # Calculate average DPD by state
     average_dpd_by_state = df.groupby('Cust State')['DPD'].mean().round(2).to_dict()
 
-    # Calculate records per pin code in each state
-    records_per_pin = df.groupby(['Cust State', 'Cust Pin']).size().unstack(fill_value=0).to_dict()
-
     # Calculate highest and lowest DPD by state
     highest_dpd_by_state = df.groupby('Cust State')['DPD'].max().to_dict()
     lowest_dpd_by_state = df.groupby('Cust State')['DPD'].min().to_dict()
@@ -62,7 +59,6 @@ def process_file(file_path, file_format, fs):
         'total_records': total_records,
         'records_by_state': records_by_state,
         'average_dpd_by_state': average_dpd_by_state,
-        'records_per_pin': records_per_pin,
         'highest_dpd_by_state': highest_dpd_by_state,
         'lowest_dpd_by_state': lowest_dpd_by_state
     }
