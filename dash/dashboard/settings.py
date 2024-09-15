@@ -42,8 +42,8 @@ INSTALLED_APPS = [
 
     #custom apps
     'authentication',
-    'core',
     'home',
+    'invoice',
 ]
 
 MIDDLEWARE = [

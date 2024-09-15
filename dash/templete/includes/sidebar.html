@@ -5,16 +5,22 @@
       -->
         <div class="sidebar-wrapper">
             <ul class="nav">
-                <li class="{% if 'index' in segment %} active {% endif %} ">
+                <li class="{% if request.path == '/' %}active{% endif %}">
                     <a href="/">
                         <i class="tim-icons icon-chart-pie-36"></i>
-                        <p>Dashboard</p>
+                        <p class="sidebar-items">Dashboard</p>
                     </a>
                 </li>
+                <li class="{% if '/invoice/' in request.path %}active{% endif %}">
+                    <a href="{% url 'invoice:invoice' %}">
+                        <i class="tim-icons icon-chart-pie-36"></i>
+                        <p class="sidebar-items">Invoice</p>
+                    </a>
+                </li>                
                 <li>
-                    <a href="{% url 'login' %}">
+                    <a href="{% url 'authentication:login' %}">
                         <i class="tim-icons icon-button-power"></i>
-                        <p>Logout</p>
+                        <p class="sidebar-items">Logout</p>
                     </a>
                 </li>
             </ul>
