@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h2>INVOICES</h2>
+            {% if messages %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    Invoice
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{% url 'invoice:create_invoice' %}">Create Invoice</a>
+                </div>
+            </div>
+            <br>
+            <form method="post">
+                {% csrf_token %}
+                <h3>Edit Invoice {{ invoice.invoice_number }}</h3>
+                {{ form.as_p }}
+                <h3>Invoice Items</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item No</th>
+                            <th>Item Name</th>
+                            <th>Quantity</th>
+                            <th>Price (incl. tax)</th>
+                            <th>Price Per Unit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <tr>
+                            <td>{{ form.item_number }}</td>
+                            <td>{{ form.item_name }}</td>
+                            <td>{{ form.quantity }}</td>
+                            <td>{{ form.price_incl_tax }}</td>
+                            <td>{{ form.price_per_unit }}</td>
+                            <td><button type="button" class="delete-item btn btn-danger">Delete</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="button" id="add-item" class="btn btn-secondary">Add Item</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+            
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('add-item').addEventListener('click', function() {
+        let totalForms = document.querySelector('#id_form-TOTAL_FORMS');
+        let currentForms = parseInt(totalForms.value);
+        let newForm = document.querySelectorAll('tbody tr')[0].cloneNode(true);
+    
+        newForm.querySelectorAll('input').forEach(function(input) {
+            let name = input.name.replace(`-${currentForms - 1}-`, `-${currentForms}-`);
+            input.name = name;
+            input.id = `id_${name}`;
+            input.value = ''; // Reset value
+        });
+    
+        document.querySelector('tbody').appendChild(newForm);
+        totalForms.value = currentForms + 1;
+    });
+    
+    document.querySelectorAll('.delete-item').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            let row = this.closest('tr');
+            row.remove();
+        });
+    });
+    
+    </script>
+    
+{% endblock %}

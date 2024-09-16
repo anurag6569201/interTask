@@ -13,10 +13,16 @@
                 </li>
                 <li class="{% if '/invoice/' in request.path %}active{% endif %}">
                     <a href="{% url 'invoice:invoice' %}">
-                        <i class="tim-icons icon-chart-pie-36"></i>
+                        <i class="tim-icons icon-email-85"></i>
                         <p class="sidebar-items">Invoice</p>
                     </a>
-                </li>                
+                </li>       
+                <li class="{% if '/status/' in request.path %}active{% endif %}">
+                    <a href="{% url 'status:status' %}">
+                        <i class="tim-icons icon-single-02"></i>
+                        <p class="sidebar-items">status</p>
+                    </a>
+                </li>             
                 <li>
                     <a href="{% url 'authentication:login' %}">
                         <i class="tim-icons icon-button-power"></i>

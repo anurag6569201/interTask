@@ -23,6 +23,7 @@ urlpatterns = [
     path('',include('authentication.urls')),
     path('',include('home.urls')),
     path('',include('invoice.urls')),
+    path('',include('status.urls')),
 ]
 
 if settings.DEBUG:

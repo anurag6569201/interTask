@@ -3,12 +3,71 @@
 {% block title %} Dashboard {% endblock %} 
 
 {% block content %}
-    <div class="content">
-        <div class="row">
-            <div class="col-12">
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h2>INVOICES</h2>
+            {% if messages %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    Invoice
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{% url 'invoice:create_invoice' %}">Create Invoice</a>
+                </div>
             </div>
+            <br>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Customer Name</th>
+                        <th>Created Date</th>
+                        <th>Total</th>
+                        <th>Invoice No</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.id }}</td>
+                        <td>{{ invoice.customer_name }}</td>
+                        <td>{{ invoice.invoice_date }}</td>
+                        <td>{{ invoice.total }}</td>
+                        <td>{{ invoice.invoice_number }}</td>
+                        <td class="td-actions">
+                            <a href="{% url 'invoice:edit_invoice' invoice.id %}" class="btn btn-success btn-sm">
+                                <i class="tim-icons icon-settings"></i> Edit
+                            </a>
+                            <form action="{% url 'invoice:delete_invoice' invoice.id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="tim-icons icon-simple-remove"></i> Delete
+                                </button>
+                            </form>
+                            <a href="{% url 'invoice:print_invoice' invoice.id %}" class="btn btn-info btn-sm">
+                                <i class="tim-icons icon-paper"></i> Print
+                            </a>
+                            <a href="{% url 'invoice:duplicate_invoice' invoice.id %}" class="btn btn-warning btn-sm">Duplicate</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No invoices found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
-{% endblock content %}
+</div>
+{% endblock %}
