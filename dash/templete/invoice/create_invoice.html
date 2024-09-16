@@ -34,45 +34,45 @@
                     <div class="col-md-6">
                         <p>
                             <label for="id_company">Company:</label>
-                            <select name="company" required id="id_company">
+                            <select name="company" id="id_company">
                                 <option value="" selected>---------</option>
                                 <option value="1">OROSK Network Private Limited</option>
                             </select>
                         </p>
                         <p>
                             <label for="id_invoice_date">Invoice date:</label>
-                            <input type="date" name="invoice_date" required id="id_invoice_date">
+                            <input type="date" name="invoice_date" id="id_invoice_date">
                         </p>
                         <p>
                             <label for="id_transaction_date">Transaction date:</label>
-                            <input type="date" name="transaction_date" required id="id_transaction_date">
+                            <input type="date" name="transaction_date" id="id_transaction_date">
                         </p>
                         <p>
                             <label for="id_due_date">Due date:</label>
-                            <input type="date" name="due_date" required id="id_due_date">
+                            <input type="date" name="due_date" id="id_due_date">
                         </p>
                     </div>
                     <div class="col-md-6">
                         <p>
                             <label for="id_invoice_number">Invoice number:</label>
-                            <input type="text" name="invoice_number" maxlength="100" required id="id_invoice_number" placeholder="Enter Invoice Number">
+                            <input type="text" name="invoice_number" maxlength="100" id="id_invoice_number" placeholder="Enter Invoice Number">
                         </p>
                         <p>
                             <label for="id_customer_email">Customer email:</label>
-                            <input type="email" name="customer_email" maxlength="254" required id="id_customer_email" placeholder="Enter Customer Email">
+                            <input type="email" name="customer_email" maxlength="254" id="id_customer_email" placeholder="Enter Customer Email">
                         </p>
                         <p>
                             <label for="id_customer_phone">Customer phone:</label>
-                            <input type="number" name="customer_phone" required id="id_customer_phone" placeholder="Enter Customer Number">
+                            <input type="number" name="customer_phone" id="id_customer_phone" placeholder="Enter Customer Number">
                         </p>
                         <p>
                             <label for="id_customer_name">Customer name:</label>
-                            <input type="text" name="customer_name" maxlength="255" required id="id_customer_name" placeholder="Enter Customer Name">
+                            <input type="text" name="customer_name" maxlength="255" id="id_customer_name" placeholder="Enter Customer Name">
                         </p>
                     </div>
                     <p class="col-md-12 CI_customer_address">
                         <label for="id_customer_address">Customer address:</label>
-                        <textarea name="customer_address" rows="4" required id="id_customer_address" placeholder="Enter Customer Address"></textarea>
+                        <textarea name="customer_address" rows="4" id="id_customer_address" placeholder="Enter Customer Address"></textarea>
                     </p>
                 </div>
                 <br>
@@ -95,40 +95,34 @@
                         <tr>
                             <td>{{ form.item_number }}</td>
                             <td>{{ form.item_name }}</td>
-                            <td>
-                                <input type="number" name="{{ form.quantity.name }}" class="quantity" value="{{ form.quantity.value }}" required/>
-                            </td>
-                            <td>
-                                <input type="number" name="{{ form.price_per_unit.name }}" class="price-per-unit" value="{{ form.price_per_unit.value }}" required/>
-                            </td>
-                            <td>
-                                <input type="text" name="{{ form.price_incl_tax.name }}" class="price-incl-tax" value="{{ form.price_incl_tax.value }}" readonly />
-                            </td>
+                            <td><input type="number" name="items-{{ forloop.counter0 }}-quantity" value="0" id="id_items-{{ forloop.counter0 }}-quantity" class="quantity"></td>
+                            <td><input type="number" name="items-{{ forloop.counter0 }}-price_per_unit" value="0.0" step="0.01" id="id_items-{{ forloop.counter0 }}-price_per_unit" class="price-per-unit"></td>
+                            <td><input type="number" name="items-{{ forloop.counter0 }}-price_incl_tax" value="0.0" step="0.01" id="id_items-{{ forloop.counter0 }}-price_incl_tax" class="price-incl-tax"></td>
                             <td><button type="button" class="delete-item btn btn-danger">Delete</button></td>
                         </tr>
                         {% endfor %}
-                    </tbody>
+                    </tbody>                    
                 </table>
-                <input type="hidden" name="form-TOTAL_FORMS" id="id_form-TOTAL_FORMS" value="{{ formset.total_form_count }}">
+                <input type="number" name="form-TOTAL_FORMS" id="id_form-TOTAL_FORMS" value="{{ formset.total_form_count }}">
                 <button type="button" id="add-item" class="btn btn-secondary">Add Item</button>
                 <br><br>
 
                 <div class="row">
                     <p class="col-md-3">
                         <label for="id_tax_rate">Tax rate:</label>
-                        <input type="number" name="tax_rate" value="18.00" step="0.01" required id="id_tax_rate">
+                        <input type="number" name="tax_rate" value="18.00" step="0.01" id="id_tax_rate">
                     </p>
                     <p class="col-md-3">
                         <label for="id_total_taxable_amount">Total taxable amount:</label>
-                        <input type="number" name="total_taxable_amount" readonly="readonly" step="0.01" required id="id_total_taxable_amount">
+                        <input type="number" name="total_taxable_amount" step="0.01" id="id_total_taxable_amount">
                     </p>
                     <p class="col-md-3">
                         <label for="id_tax_amount">Tax amount:</label>
-                        <input type="text" name="tax_amount" readonly="readonly" id="id_tax_amount">
+                        <input type="text" name="tax_amount" id="id_tax_amount">
                     </p>
                     <p class="col-md-3">
                         <label for="id_total">Total:</label>
-                        <input type="text" name="total" readonly="readonly" id="id_total">
+                        <input type="text" name="total" id="id_total">
                     </p>
                 </div>
 
@@ -253,8 +247,7 @@
                         });
                     });
                 });
-                </script>
-                
+            </script>
         </div>
     </div>
 </div>

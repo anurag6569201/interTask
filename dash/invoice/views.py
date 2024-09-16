@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
 from django.forms import inlineformset_factory
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Invoice, Item
 from .forms import InvoiceForm, ItemForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
+# Invoice list page
 @login_required(login_url="/login/")
 def invoice(request):
     invoices = Invoice.objects.all()
@@ -12,90 +14,104 @@ def invoice(request):
     }
     return render(request, 'invoice/invoice.html', context)
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.forms import inlineformset_factory
-from .models import Invoice, Item
-from .forms import InvoiceForm, ItemForm
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-
+# Creation of invoices
 @login_required(login_url="/login/")
 def create_invoice(request):
-    # Use inlineformset_factory to create a formset for Invoice and its associated Items
-    ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=1, can_delete=True)
-
+    ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=10, can_delete=True)
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
         formset = ItemFormSet(request.POST)
-        
         if form.is_valid() and formset.is_valid():
-            # Save the invoice first to get an instance to associate with the formset
             invoice = form.save()
-
-            # Bind the invoice instance to the formset before saving it
             formset.instance = invoice
             formset.save()
-            
             messages.success(request, "Invoice created successfully.")
-            return redirect('invoice:invoice')  # Adjust the redirect as necessary
+            return redirect('invoice:invoice') 
         else:
-            # Handle errors if form or formset is invalid
             print("Form errors:", form.errors)
             print("Formset errors:", formset.errors)
     else:
         form = InvoiceForm()
         formset = ItemFormSet()
-
     return render(request, 'invoice/create_invoice.html', {'form': form, 'formset': formset})
 
-@login_required(login_url="/login/")
+from django.forms import formset_factory
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Invoice
+from .forms import InvoiceForm
+from django.forms import inlineformset_factory
+
+# views.py
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .forms import InvoiceForm, ItemForm
+from .models import Invoice, Item
+from django.forms import formset_factory
+
 def edit_invoice(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
-    ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=1, can_delete=True)
+    
+    # Create the formset class
+    ItemFormSet = formset_factory(ItemForm, extra=0)
     
     if request.method == 'POST':
         form = InvoiceForm(request.POST, instance=invoice)
-        formset = ItemFormSet(request.POST, instance=invoice)
+        formset = ItemFormSet(request.POST, prefix='items')
+        
         if form.is_valid() and formset.is_valid():
-            form.save()
-            formset.save()
-            messages.success(request, "Invoice updated successfully.")
+            invoice = form.save()
+            for item_form in formset:
+                if item_form.cleaned_data:
+                    item = item_form.save(commit=False)
+                    item.invoice = invoice
+                    item.save()
             return redirect('invoice:invoice')
     else:
         form = InvoiceForm(instance=invoice)
-        formset = ItemFormSet(instance=invoice)
+        items = Item.objects.filter(invoice=invoice)
+        formset = ItemFormSet(prefix='items')
+        # Initialize formset with data
+        for item in items:
+            formset.forms.append(ItemForm(instance=item, prefix='items'))
     
     return render(request, 'invoice/edit_invoice.html', {'form': form, 'formset': formset})
 
 @login_required(login_url="/login/")
 def duplicate_invoice(request, pk):
     original_invoice = get_object_or_404(Invoice, pk=pk)
-    
+
+    # Create the duplicated invoice
     duplicated_invoice = Invoice.objects.create(
         company=original_invoice.company,
-        invoice_number=f"{original_invoice.invoice_number}-copy",
+        invoice_number=f"{original_invoice.invoice_number}-copy", 
         invoice_date=original_invoice.invoice_date,
         transaction_date=original_invoice.transaction_date,
         due_date=original_invoice.due_date,
+        total_taxable_amount=original_invoice.total_taxable_amount, 
+        tax_rate=original_invoice.tax_rate,
+        tax_amount=original_invoice.tax_amount,  
         total=original_invoice.total,
         customer_name=original_invoice.customer_name,
         customer_email=original_invoice.customer_email,
         customer_phone=original_invoice.customer_phone,
         customer_address=original_invoice.customer_address,
     )
-    
+
+    # Duplicating each item associated with the original invoice
     for item in original_invoice.items.all():
         Item.objects.create(
-            invoice=duplicated_invoice,
+            invoice=duplicated_invoice, 
             item_number=item.item_number,
             item_name=item.item_name,
             quantity=item.quantity,
             price_incl_tax=item.price_incl_tax,
             price_per_unit=item.price_per_unit
         )
-    
+
     messages.success(request, "Invoice duplicated successfully.")
     return redirect('invoice:invoice')
+
 
 @login_required(login_url="/login/")
 def delete_invoice(request, pk):
