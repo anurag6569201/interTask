@@ -1,0 +1,19 @@
+/* create invoice */
+.create_invoice p{
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    flex-direction: column;
+}
+.CI_customer_address textarea,
+.create_invoice p select,
+.table input,
+.create_invoice p input{
+    padding: 7px 7px;
+}
+.CI_customer_address{
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    flex-direction: column;
+}

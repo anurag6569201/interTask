@@ -21,17 +21,27 @@ from django.contrib import messages
 
 @login_required(login_url="/login/")
 def create_invoice(request):
+    # Use inlineformset_factory to create a formset for Invoice and its associated Items
     ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
         formset = ItemFormSet(request.POST)
+        
         if form.is_valid() and formset.is_valid():
+            # Save the invoice first to get an instance to associate with the formset
             invoice = form.save()
+
+            # Bind the invoice instance to the formset before saving it
             formset.instance = invoice
             formset.save()
+            
             messages.success(request, "Invoice created successfully.")
-            return redirect('invoice:invoice')
+            return redirect('invoice:invoice')  # Adjust the redirect as necessary
+        else:
+            # Handle errors if form or formset is invalid
+            print("Form errors:", form.errors)
+            print("Formset errors:", formset.errors)
     else:
         form = InvoiceForm()
         formset = ItemFormSet()
