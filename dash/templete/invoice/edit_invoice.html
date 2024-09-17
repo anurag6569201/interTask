@@ -91,14 +91,24 @@
                         {% for form in formset %}
                         <tr class="item-row" data-form-index="{{ forloop.counter0 }}">
                             {{ form.id }}
-                            <td><input type="number" name="items-{{ forloop.counter0 }}-item_number" value="{{ form.item_number.value }}" id="id_items-{{ forloop.counter0 }}-item_number"></td>
-                            <td><input type="text" name="items-{{ forloop.counter0 }}-item_name" value="{{ form.item_name.value }}" id="id_items-{{ forloop.counter0 }}-item_name"></td>
-                            <td><input type="number" name="items-{{ forloop.counter0 }}-quantity" value="{{ form.quantity.value }}" class="quantity" id="id_items-{{ forloop.counter0 }}-quantity"></td>
-                            <td><input type="number" name="items-{{ forloop.counter0 }}-price_per_unit" value="{{ form.price_per_unit.value }}" class="price-per-unit" step="0.01" id="id_items-{{ forloop.counter0 }}-price_per_unit"></td>
-                            <td><input type="number" name="items-{{ forloop.counter0 }}-price_incl_tax" value="{{ form.price_incl_tax.value }}" class="price-incl-tax" step="0.01" id="id_items-{{ forloop.counter0 }}-price_incl_tax" readonly></td>
+                            <td><input type="number" name="items-{{ forloop.counter0 }}-item_number"
+                                    value="{{ form.item_number.value }}"
+                                    id="id_items-{{ forloop.counter0 }}-item_number"></td>
+                            <td><input type="text" name="items-{{ forloop.counter0 }}-item_name"
+                                    value="{{ form.item_name.value }}" id="id_items-{{ forloop.counter0 }}-item_name">
+                            </td>
+                            <td><input type="number" name="items-{{ forloop.counter0 }}-quantity"
+                                    value="{{ form.quantity.value }}" class="quantity"
+                                    id="id_items-{{ forloop.counter0 }}-quantity"></td>
+                            <td><input type="number" name="items-{{ forloop.counter0 }}-price_per_unit"
+                                    value="{{ form.price_per_unit.value }}" class="price-per-unit" step="0.01"
+                                    id="id_items-{{ forloop.counter0 }}-price_per_unit"></td>
+                            <td><input type="number" name="items-{{ forloop.counter0 }}-price_incl_tax"
+                                    value="{{ form.price_incl_tax.value }}" class="price-incl-tax" step="0.01"
+                                    id="id_items-{{ forloop.counter0 }}-price_incl_tax" readonly></td>
                             <td>
                                 {% if form.instance.pk %}
-                                    <input type="checkbox" name="{{ form.prefix }}-DELETE" style="display: none;">
+                                <input type="checkbox" name="{{ form.prefix }}-DELETE" style="display: none;">
                                 {% endif %}
                                 <button type="button" class="delete-item btn btn-danger">Delete</button>
                             </td>
@@ -106,7 +116,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <input type="hidden" id="id_form-TOTAL_FORMS" name="items-TOTAL_FORMS" value="{{ formset.total_form_count }}">
+                <input type="hidden" id="id_form-TOTAL_FORMS" name="items-TOTAL_FORMS"
+                    value="{{ formset.total_form_count }}">
                 <button type="button" id="add-item" class="btn btn-secondary">Add Item</button>
                 <br><br>
 
@@ -132,11 +143,11 @@
                 <button type="submit" class="btn btn-primary">Save Invoice</button>
             </form>
             <script>
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function () {
                     const addItemButton = document.getElementById('add-item');
                     const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
                     let formCount = parseInt(totalFormsInput.value, 10) || 0;
-            
+
                     function addNewForm() {
                         const newRow = document.createElement('tr');
                         newRow.classList.add('item-row');
@@ -155,23 +166,23 @@
                         attachEventListeners(); // Reattach event listeners to the new form
                         calculateItemTotals();
                     }
-            
+
                     function attachEventListeners() {
                         // Remove previous event listeners
                         document.querySelectorAll('.delete-item').forEach(btn => {
                             btn.removeEventListener('click', handleDeleteItem);
                         });
-            
+
                         document.querySelectorAll('.delete-item').forEach(btn => {
                             btn.addEventListener('click', handleDeleteItem);
                         });
-            
+
                         document.querySelectorAll('.quantity, .price-per-unit').forEach(input => {
                             input.removeEventListener('input', calculateItemTotals);
                             input.addEventListener('input', calculateItemTotals);
                         });
                     }
-            
+
                     function handleDeleteItem() {
                         const row = this.closest('tr');
                         if (row) {
@@ -180,54 +191,61 @@
                             calculateItemTotals();
                         }
                     }
-            
+
                     function calculateItemTotals() {
                         let totalTaxableAmount = 0;
                         const taxRate = parseFloat(document.getElementById('id_tax_rate')?.value) || 0;
-            
+
                         document.querySelectorAll('#invoice-items .item-row').forEach(row => {
+                            // Skip rows marked for deletion
+                            const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+                            if (deleteCheckbox && deleteCheckbox.checked) {
+                                return;
+                            }
+
                             const quantityInput = row.querySelector('.quantity');
                             const pricePerUnitInput = row.querySelector('.price-per-unit');
                             const priceInclTaxInput = row.querySelector('.price-incl-tax');
-            
+
                             const quantity = parseFloat(quantityInput?.value) || 0;
                             const pricePerUnit = parseFloat(pricePerUnitInput?.value) || 0;
-            
+
                             const itemTotal = quantity * pricePerUnit;
                             const itemTotalWithTax = itemTotal + (itemTotal * taxRate / 100);
-            
+
                             if (priceInclTaxInput) {
                                 priceInclTaxInput.value = itemTotalWithTax.toFixed(2);
                             }
-            
+
                             totalTaxableAmount += itemTotal;
                         });
-            
+
                         const taxableAmountField = document.getElementById('id_total_taxable_amount');
                         const taxAmountField = document.getElementById('id_tax_amount');
                         const totalField = document.getElementById('id_total');
-            
+
                         if (taxableAmountField && taxAmountField && totalField) {
                             const taxAmount = (totalTaxableAmount * taxRate / 100).toFixed(2);
                             const grandTotal = (totalTaxableAmount + parseFloat(taxAmount)).toFixed(2);
-            
+
                             taxableAmountField.value = totalTaxableAmount.toFixed(2);
                             taxAmountField.value = taxAmount;
                             totalField.value = grandTotal;
                         }
                     }
-            
+
+
                     addItemButton.addEventListener('click', addNewForm);
-                    
-                    document.querySelectorAll('.delete-item').forEach(function(btn) {
-                        btn.addEventListener('click', function() {
+
+                    document.querySelectorAll('.delete-item').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
                             const row = this.closest('tr');
                             if (row) {
                                 const checkbox = row.querySelector('input[type="checkbox"]');
                                 if (checkbox) {
                                     checkbox.checked = true;
                                 }
-                                row.style.display = 'none';
+                                row.style.display = 'block';
                                 updateTotalForms();
                                 calculateItemTotals();
                             }
@@ -237,7 +255,7 @@
                     calculateItemTotals();
                 });
             </script>
-            
+
         </div>
     </div>
 </div>

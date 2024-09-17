@@ -4,6 +4,13 @@ from .models import Invoice, Item
 from .forms import InvoiceForm, ItemForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+
+
 
 # Invoice list page
 @login_required(login_url="/login/")
@@ -13,6 +20,10 @@ def invoice(request):
         'invoices': invoices,
     }
     return render(request, 'invoice/invoice.html', context)
+
+
+
+
 
 # Creation of invoices
 @login_required(login_url="/login/")
@@ -35,22 +46,11 @@ def create_invoice(request):
         formset = ItemFormSet()
     return render(request, 'invoice/create_invoice.html', {'form': form, 'formset': formset})
 
-from django.forms import formset_factory
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from .models import Invoice
-from .forms import InvoiceForm
-from django.forms import inlineformset_factory
 
-# views.py
 
-from django.shortcuts import render, get_object_or_404, redirect
-from .forms import InvoiceForm, ItemForm
-from .models import Invoice, Item
-from django.forms import modelformset_factory
 
-from django.forms import modelformset_factory
 
+# editing of the invoice
 def edit_invoice(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=0, can_delete=True)
@@ -62,7 +62,7 @@ def edit_invoice(request, pk):
             form.save()
             formset.save()
             messages.success(request, "Invoice updated successfully.")
-            return redirect('invoice:invoice')  # Adjust this to your desired URL name or path
+            return redirect('invoice:invoice') 
         else:
             messages.error(request, "Please correct the errors below.")
     else:
@@ -71,6 +71,12 @@ def edit_invoice(request, pk):
 
     return render(request, 'invoice/edit_invoice.html', {'form': form, 'formset': formset})
 
+
+
+
+
+
+# duplication of the invoice form
 @login_required(login_url="/login/")
 def duplicate_invoice(request, pk):
     original_invoice = get_object_or_404(Invoice, pk=pk)
@@ -107,6 +113,10 @@ def duplicate_invoice(request, pk):
     return redirect('invoice:invoice')
 
 
+
+
+
+# deletion of the invoice
 @login_required(login_url="/login/")
 def delete_invoice(request, pk):
     invoice = Invoice.objects.get(pk=pk)
@@ -116,34 +126,50 @@ def delete_invoice(request, pk):
     return render(request, 'invoice/delete_invoice.html', {'invoice': invoice})
 
 
-from django.http import HttpResponse
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 
+
+
+# priniting the invoice
 @login_required(login_url="/login/")
 def print_invoice(request, pk):
     invoice = Invoice.objects.get(pk=pk)
     items = invoice.items.all()
-    
-    # Context for rendering the HTML
     context = {
         'invoice': invoice,
         'items': items,
     }
-
-    # Render HTML content using the template
     template = get_template('invoice/print_invoice.html')
     html = template.render(context)
-    
-    # Create a HTTP response with PDF content type
+
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
+    response['Content-Disposition'] = f'inline; filename="invoice_{invoice.invoice_number}.pdf"'
 
-    # Convert HTML to PDF using xhtml2pdf
     pisa_status = pisa.CreatePDF(html, dest=response)
-
-    # If there is an error during PDF creation, return error response
     if pisa_status.err:
         return HttpResponse('We had some errors while generating your PDF')
 
     return response
+
+
+
+
+# bulk deletes of the invoice
+@require_POST
+def bulk_delete_invoices(request):
+    ids = request.POST.getlist('ids[]') 
+    if ids:
+        Invoice.objects.filter(id__in=ids).delete() 
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+
+
+def view_invoice(request):
+    invoice = Invoice.objects.first()
+    items = invoice.items.all()
+    context = {
+        'invoice': invoice,
+        'items': items,
+    }
+    return render(request, 'invoice/print_invoice.html', context)
+

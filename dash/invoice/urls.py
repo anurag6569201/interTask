@@ -10,4 +10,6 @@ urlpatterns = [
     path('delete-invoice/<int:pk>/', views.delete_invoice, name='delete_invoice'),
     path('print-invoice/<int:pk>/', views.print_invoice, name='print_invoice'),
     path('duplicate-invoice/<int:pk>/', views.duplicate_invoice, name='duplicate_invoice'),
+    path('bulk-delete/', views.bulk_delete_invoices, name='bulk_delete'),
+    path('view_invoice/', views.view_invoice, name='view_invoice'),
 ]

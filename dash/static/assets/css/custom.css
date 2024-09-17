@@ -2,3 +2,18 @@
     font-weight: 800;
     font-size:medium;
 }
+.dt-length{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: left;
+}
+.btn.dropdown-toggle[data-toggle="dropdown"]{
+    margin: 0;
+}
+.dt-search{
+    display: none;
+}
+.alert-container{
+    padding: 0;
+}

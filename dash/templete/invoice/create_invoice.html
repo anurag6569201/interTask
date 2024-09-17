@@ -35,8 +35,8 @@
                         <p>
                             <label for="id_company">Company:</label>
                             <select name="company" id="id_company">
-                                <option value="" selected>---------</option>
-                                <option value="1">OROSK Network Private Limited</option>
+                                <option value="">---------</option>
+                                <option value="1" selected>OROSK Network Private Limited</option>
                             </select>
                         </p>
                         <p>
@@ -103,7 +103,7 @@
                         {% endfor %}
                     </tbody>                    
                 </table>
-                <input type="number" name="form-TOTAL_FORMS" id="id_form-TOTAL_FORMS" value="{{ formset.total_form_count }}">
+                <input type="hidden" name="form-TOTAL_FORMS" id="id_form-TOTAL_FORMS" value="{{ formset.total_form_count }}">
                 <button type="button" id="add-item" class="btn btn-secondary">Add Item</button>
                 <br><br>
 
