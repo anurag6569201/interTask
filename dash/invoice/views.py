@@ -47,34 +47,28 @@ from django.forms import inlineformset_factory
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import InvoiceForm, ItemForm
 from .models import Invoice, Item
-from django.forms import formset_factory
+from django.forms import modelformset_factory
+
+from django.forms import modelformset_factory
 
 def edit_invoice(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
-    
-    # Create the formset class
-    ItemFormSet = formset_factory(ItemForm, extra=0)
-    
+    ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=0, can_delete=True)
+
     if request.method == 'POST':
         form = InvoiceForm(request.POST, instance=invoice)
-        formset = ItemFormSet(request.POST, prefix='items')
-        
-        if form.is_valid() and formset.is_valid():
-            invoice = form.save()
-            for item_form in formset:
-                if item_form.cleaned_data:
-                    item = item_form.save(commit=False)
-                    item.invoice = invoice
-                    item.save()
-            return redirect('invoice:invoice')
+        formset = ItemFormSet(request.POST, instance=invoice)
+        if form.is_valid() or formset.is_valid():
+            form.save()
+            formset.save()
+            messages.success(request, "Invoice updated successfully.")
+            return redirect('invoice:invoice')  # Adjust this to your desired URL name or path
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = InvoiceForm(instance=invoice)
-        items = Item.objects.filter(invoice=invoice)
-        formset = ItemFormSet(prefix='items')
-        # Initialize formset with data
-        for item in items:
-            formset.forms.append(ItemForm(instance=item, prefix='items'))
-    
+        formset = ItemFormSet(instance=invoice)
+
     return render(request, 'invoice/edit_invoice.html', {'form': form, 'formset': formset})
 
 @login_required(login_url="/login/")

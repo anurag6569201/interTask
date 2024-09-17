@@ -19,6 +19,10 @@ class CompanyAdmin(admin.ModelAdmin):
     list_display = ['name', 'phone', 'email', 'website', 'payment_id']
     search_fields = ['name', 'gst', 'cin']
 
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ['item_number', 'item_name']
+
 # Register the models with custom admin
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Invoice, InvoiceAdmin)
+admin.site.register(Item, ItemAdmin)
