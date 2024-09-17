@@ -44,3 +44,18 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.item_name} for Invoice {self.invoice.invoice_number}"
+
+
+class BankDetails(models.Model):
+    bank_name = models.CharField(max_length=255)
+    account_number = models.CharField(max_length=100)
+    account_holder_name = models.CharField(max_length=255)
+    ifsc_code = models.CharField(max_length=100)
+    
+    # Adding image fields
+    qr_scanner_image = models.ImageField(upload_to='bank_details/qr_scanner/', blank=True, null=True)
+    sign_seal_image = models.ImageField(upload_to='bank_details/sign_seal/', blank=True, null=True)
+    company_logo = models.ImageField(upload_to='bank_details/company_logo/', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.company} - {self.bank_name}"

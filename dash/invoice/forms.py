@@ -1,5 +1,5 @@
 from django import forms
-from .models import Invoice, Item
+from .models import Invoice, Item,BankDetails
 
 class InvoiceForm(forms.ModelForm):
     invoice_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -21,3 +21,13 @@ class ItemForm(forms.ModelForm):
             'price_per_unit': forms.NumberInput(attrs={'class': 'price-per-unit'}),
             'price_incl_tax': forms.NumberInput(attrs={'class': 'price-incl-tax'}),
         }
+
+
+class BankDetailsForm(forms.ModelForm):
+    class Meta:
+        model = BankDetails
+        fields = [
+            'bank_name', 'account_number',
+            'account_holder_name', 'ifsc_code',
+            'qr_scanner_image', 'sign_seal_image', 'company_logo'
+        ]

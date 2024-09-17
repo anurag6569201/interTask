@@ -41,6 +41,7 @@
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="dropdown-item" href="{% url 'invoice:create_invoice' %}">Create Invoice</a>
+                        <a class="dropdown-item" href="{% url 'invoice:bank_details_view' %}">Logo And Bank</a>
                     </div>
                 </div>
     
@@ -49,7 +50,6 @@
                     <button id="deleteSelected" class="btn btn-danger" disabled>Delete Selected</button>
                 </div>
 
-                <a href="{% url 'invoice:view_invoice' %}">view_first_invoice</a>
             </div>
 
             <!-- Search input -->
@@ -96,7 +96,7 @@
                             </form>
                         </td>
                         <td class="text-center">
-                            <a href="{% url 'invoice:print_invoice' invoice.id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'invoice:view_invoice' invoice.id %}" class="btn btn-info btn-sm">
                                 <i class="tim-icons icon-paper"></i>
                             </a>
                         </td>

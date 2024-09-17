@@ -5,22 +5,27 @@
     body {
         font-family: Arial, sans-serif;
     }
-    *{
-        font-size: 12px;
+
+    * {
+        font-size: 10px;
     }
 
     @media print {
         .table-container {
             page-break-inside: auto;
         }
+
         .table-container tr {
             page-break-inside: avoid;
             page-break-after: auto;
         }
+
         .container {
             width: 100%;
         }
-        .footer, .header {
+
+        .footer,
+        .header {
             page-break-after: auto;
         }
     }
@@ -125,6 +130,7 @@
         justify-content: right;
     }
 
+    .company_logo00 img,
     .company_logo img {
         max-width: 250px;
     }
@@ -147,13 +153,16 @@
             <tr>
                 <td>
                     <div class="header">
-                        <div class="company_logo" style="float: left;margin-right: auto;width: 30%;display: inline-flex;justify-content: left;">
-                            <img src="https://i.ibb.co/5F7yN1Y/Picture1.png" alt=""> 
+                        <div class="company_logo"
+                            style="float: left;margin-right: auto;width: 30%;display: inline-flex;justify-content: left;">
+                            <img src="{{ bank_details.company_logo.url }}" alt="">
                         </div>
                         <div class="company_detail" style="float: left;margin-left: auto;width: 70%;text-align: right;">
                             <h2>{{ invoice.company.name }}</h2>
-                            <p>%CompanyStreetAddress1%, %CompanyStreetAddress2%,<br> %CompanyPostalCode%, %CompanyCity%,<br> %CompanyState%</p> 
-                            <span>Email ID: %ContactEMailIds%</span>
+                            <p>{{ invoice.company.address }}<br>Phone No.: {{ invoice.company.phone }} <br> Email ID: {{
+                                invoice.company.email }} <br> Email ID: {{ invoice.company.website }}</p>
+                            <span>GST : {{ invoice.company.gst }}</span><br>
+                            <span>CIN : {{ invoice.company.cin }}</span>
                         </div>
                     </div>
                 </td>
@@ -165,16 +174,16 @@
     <table class="table-container">
         <tbody>
             <tr>
-                <td class="wide50">Invoice Date : %InvoiceDate%</td>
-                <td class="wide50">Invoice No. : %InvoiceNumber%</td>
+                <td class="wide50">Invoice Date : {{ invoice.invoice_date }}</td>
+                <td class="wide50">Invoice No. : {{ invoice.invoice_number }}</td>
             </tr>
             <tr>
-                <td>Due Date : %DueDate%</td>
-                <td>PO &amp; Date : ${invoice.cf_po_no}/%P.O.Number%</td>
+                <td>Transaction Date : {{ invoice.transaction_date }}</td>
+                <td>Due Date : {{ invoice.due_date }}</td>
             </tr>
             <tr>
-                <td>Payment Terms : %PaymentTerms%</td>
-                <td>Project :&nbsp;</td>
+                <td>Service Source : {{ invoice.company.website }}</td>
+                <td>Payment ID : {{ invoice.company.payment_id }}</td>
             </tr>
             <tr>
                 <td colspan="2" style="text-align: center;">Customer Details</td>
@@ -186,20 +195,12 @@
     <table class="table-container">
         <tbody>
             <tr>
-                <td class="wide15">Bill To :</td>
-                <td class="wide30">%ContactCompanyName%</td>
-                <td class="wide15">Ship To :</td>
-                <td>%ContactCompanyName%</td>
+                <td class="wide50">Customer Name : {{ invoice.customer_name }}</td>
+                <td class="wide50">Customer Email : {{ invoice.customer_email }}</td>
             </tr>
             <tr>
-                <td class="rb" rowspan="3" style="vertical-align: top;">Address : <br><br>GST No:</td>
-                <td class="bb">%CustomerBAddress%</td>
-                <td class="lb rb" rowspan="3" style="vertical-align: top;">Address :</td>
-                <td class="bb">%CustomerSAddress%</td>
-            </tr>
-            <tr>
-                <td class="ub bb">%CustomerGSTIN%</td>
-                <td class="ub bb">%CustomerGSTIN%</td>
+                <td class="wide50">Customer Phone : {{ invoice.customer_phone}}</td>
+                <td class="wide50">Customer Address : {{ invoice.customer_address }}</td>
             </tr>
         </tbody>
     </table>
@@ -208,19 +209,21 @@
     <table class="table-container">
         <tbody>
             <tr>
-                <td class="wide10">SR. No.</td>
-                <td>HSN / SAC Code</td>
-                <td>Description</td>
-                <td>Qty</td>
-                <td class="wide20">Amount</td>
+                <td class="wide15">SR. No.</td>
+                <td class="wide20">Service Name</td>
+                <td class="wide15">Qty</td>
+                <td>Price/Service</td>
+                <td class="wide20">Amount Incl Tax</td>
             </tr>
+            {% for item in items %}
             <tr>
-                <td style="text-align: right;">1</td>
-                <td style="text-align: right;">%HSNOrSACValue%</td>
-                <td>%ItemDescription%</td>
-                <td style="text-align: right;">%ItemQty%</td>
-                <td style="text-align: right;">%ItemAmount%</td>
+                <td style="text-align: right;">{{ forloop.counter }}</td>
+                <td style="text-align: right;">{{ item.item_name}}</td>
+                <td style="text-align: right;">{{ item.quantity }}</td>
+                <td>{{ item.price_per_unit }}</td>
+                <td style="text-align: right;">{{ item.price_incl_tax }}</td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 
@@ -231,111 +234,56 @@
                 <td rowspan="3" class="wide10 rb"></td>
                 <td rowspan="3" class="wide40 lb"></td>
                 <td style="text-align: right;">Total Amount</td>
-                <td style="text-align: right;" class="wide20">%InvoiceSubTotal%</td>
+                <td style="text-align: right;" class="wide20">{{ invoice.total_taxable_amount }}</td>
             </tr>
             <tr>
                 <td style="text-align: right;">IGST @18%</td>
-                <td style="text-align: right;">%IGSTAmount%</td>
+                <td style="text-align: right;">{{ invoice.tax_amount }}</td>
             </tr>
             <tr>
                 <td style="text-align: right;">Grand Total</td>
-                <td style="text-align: right;">%InvoiceSubTotalIncTax%</td>
+                <td style="text-align: right;">{{ invoice.total }}</td>
             </tr>
             <tr>
-                <td>In Words :</td>
-                <td colspan="3">%TotalInWords%</td>
+                <td class="wide15">In Words</td>
+                <td colspan="3">{{ total_in_word }} only.</td>
             </tr>
         </tbody>
     </table>
 
     <!-- Bank Details Section -->
     <div class="footer">
-        <table class="bank-details table-container">
+        <table class="bank-details table-container wide50">
+            <thead>
+                <tr>
+                    <th>Bank Details</th>
+                    <th>Authority Sign</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
+                    <td>Please Pay the QR/UPI/PAYMENT ID transfer in favour of '{{ invoice.company.name }}'</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>Please Pay the Cheque/DD/Wire transfer in favour of ' ESYASOFT TECHNOLOGIES PVT LTD.,'</td>
+                    <td>Bank Name: <b>{{ bank_details.bank_name }}</b></td>
+                    <td>Account No. : <b>{{ bank_details.account_number }}</b></td>
                 </tr>
                 <tr>
-                    <td class="wide15">Bank Details:</td>
+                    <td>IFSC Code : <b>{{ bank_details.ifsc_code }}</b></td>
+                    <td>GST No. : <b>{{ invoice.company.gst }}</b></td>
                 </tr>
-                <tr>
-                    <td>Bank Name: <b>HDFC Bank</b></td>
-                </tr>
-                <tr>
-                    <td>Account No. : <b>502000009106607</b></td>
-                </tr>
-                <tr>
-                    <td>Branch : <b>Banashankari Branch, Bangalore</b></td>
-                </tr>
-                <tr>
-                    <td>IFSC Code : <b>HDFC0000157</b></td>
-                </tr>
-                <tr>
-                    <td>PAN No. : <b>AADCE6527G</b></td>
-                </tr>
-                <tr>
-                    <td>GST No. : <b>29AADCE6527G1ZJ</b></td>
+                <tr class="company_logo00 wide50">
+                    <td><img style="width: 150px;" src="{{ bank_details.qr_scanner_image.url }}" alt="Scanner Image"
+                            class="scanner-image" /></td>
+                    <td><img style="width: 150px;" src="{{ bank_details.sign_seal_image.url }}" alt="Seal Image"
+                            class="seal-image" /></td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Terms and Conditions Section -->
-    <table class="table-container" style="border-bottom: none;">
-        <tbody>
-            <tr>
-                <td style="vertical-align: top;border-bottom: none;">
-                    <span>Terms:</span><br>
-                    <li>1. The above material/services have been supplied according to your order reference.</li>
-                    <li>2. Goods and services once sold will not be exchanged or returned.</li>
-                    <li>3. We declare that this invoice shows the actual price of goods/services described and all particulars are true and correct.</li>
-                    <li>4. INCASE OF ANY DISCREPANCIES, THE SAME IS TO BE REPORTED WITHIN 7 DAYS FROM THE DATE OF THIS INVOICE.</li>
-                    <li>5. We Esyasoft Technologies Pvt Ltd., is registered under the MSME Act.</li>
-                    <li>6. Subject to Bangalore jurisdiction only.</li>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 
-    <!-- Footer Section -->
-    <div class="footer">
-        <table style="border-top: none;" class="bank-details table-container">
-            <tbody>
-                <tr>
-                    <td class="wide15 amount_text ub" rowspan="8"></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td style="text-align: right;">For ESYASOFT TECHNOLOGIES PVT LTD</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td style="text-align: left;">E &amp; OE</td>
-                    <td style="text-align: right;">Authorised Signatory</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+
+
 </div>

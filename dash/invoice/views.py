@@ -9,7 +9,7 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
-
+import inflect
 
 
 # Invoice list page
@@ -27,6 +27,7 @@ def invoice(request):
 
 # Creation of invoices
 @login_required(login_url="/login/")
+
 def create_invoice(request):
     ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=10, can_delete=True)
     if request.method == 'POST':
@@ -128,31 +129,6 @@ def delete_invoice(request, pk):
 
 
 
-
-# priniting the invoice
-@login_required(login_url="/login/")
-def print_invoice(request, pk):
-    invoice = Invoice.objects.get(pk=pk)
-    items = invoice.items.all()
-    context = {
-        'invoice': invoice,
-        'items': items,
-    }
-    template = get_template('invoice/print_invoice.html')
-    html = template.render(context)
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="invoice_{invoice.invoice_number}.pdf"'
-
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse('We had some errors while generating your PDF')
-
-    return response
-
-
-
-
 # bulk deletes of the invoice
 @require_POST
 def bulk_delete_invoices(request):
@@ -164,12 +140,36 @@ def bulk_delete_invoices(request):
 
 
 
-def view_invoice(request):
-    invoice = Invoice.objects.first()
+def view_invoice(request,pk):
+    invoice = get_object_or_404(Invoice, id=pk)
     items = invoice.items.all()
+
+    p = inflect.engine()
+    number=invoice.total
+    total_in_word=p.number_to_words(number)
+
+    bank_details=get_object_or_404(BankDetails)
     context = {
         'invoice': invoice,
         'items': items,
+        'total_in_word':total_in_word,
+        'bank_details':bank_details,
     }
     return render(request, 'invoice/print_invoice.html', context)
 
+
+
+from .models import BankDetails
+from .forms import BankDetailsForm
+
+def bank_details_view(request):
+    # Assuming there's only one record; if not, you should handle it appropriately
+    bank_details = BankDetails.objects.first()  # Or use get_object_or_404 if you have an ID
+    if request.method == 'POST':
+        form = BankDetailsForm(request.POST, request.FILES, instance=bank_details)
+        if form.is_valid():
+            form.save()
+            return redirect('invoice:invoice')  # Redirect to a success page or the same view
+    else:
+        form = BankDetailsForm(instance=bank_details)
+    return render(request, 'invoice/bank_details_form.html', {'form': form})
