@@ -8,18 +8,21 @@ body header{
     flex-direction: column;
     min-height: 85vh;
 }
-.disabledthings{
+#Analysis-btn{
     pointer-events: none;
     opacity: .6;
 }
+.outlet-text h2, .outlet-text{
+    text-align: center !important;
+}
 .outlet {
     display: flex;
-    align-items: left;
-    justify-content: left;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-.outlet-text button{
+.upload-alert button{
     border: none;
     border-radius: .1em;
     background-color: transparent;
@@ -145,4 +148,22 @@ h1,h2,h3,h4,h5,h6,.outlet-text h3 {
     100% {
         opacity: 1;
     }
+}
+.result_container{
+    max-width: 500px;
+}
+#downloadBtn,
+#copyBtn{
+    background-color: transparent;
+    border: 1px solid rgb(69, 69, 69);
+    color: rgb(69, 69, 69);
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius:7px;
+    margin:0 10px;
+}
+.Result_div{
+    border: 1px solid rgb(69, 69, 69);
+    padding: 15px;
+    border-radius: 10px;
 }
