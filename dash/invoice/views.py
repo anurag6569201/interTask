@@ -10,6 +10,9 @@ from xhtml2pdf import pisa
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import inflect
+from .models import BankDetails
+from .forms import BankDetailsForm
+
 
 
 # Invoice list page
@@ -159,11 +162,8 @@ def view_invoice(request,pk):
 
 
 
-from .models import BankDetails
-from .forms import BankDetailsForm
 
 def bank_details_view(request):
-    # Assuming there's only one record; if not, you should handle it appropriately
     bank_details = BankDetails.objects.first()  # Or use get_object_or_404 if you have an ID
     if request.method == 'POST':
         form = BankDetailsForm(request.POST, request.FILES, instance=bank_details)

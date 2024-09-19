@@ -17,8 +17,8 @@
                         <p class="sidebar-items">Invoice</p>
                     </a>
                 </li>       
-                <li class="{% if '/status/' in request.path %}active{% endif %}">
-                    <a href="{% url 'status:status' %}">
+                <li class="{% if '/order/' in request.path %}active{% endif %}">
+                    <a href="{% url 'status:order_list' %}">
                         <i class="tim-icons icon-single-02"></i>
                         <p class="sidebar-items">status</p>
                     </a>

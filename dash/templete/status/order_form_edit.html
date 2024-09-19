@@ -1,0 +1,75 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Dashboard {% endblock %} 
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'assets/css/invoice/invoice.css' %}">
+{% endblock stylesheets %}
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h2>Create Order</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>
+                            <label for="id_order_id">Order ID:</label>
+                            <input type="text" name="order_id" maxlength="50" required id="id_order_id" class="form-control" placeholder="Enter Order ID" value="{{ form.order_id.value|default_if_none:'' }}">
+                        </p>
+                        <p>
+                            <label for="id_email">Email:</label>
+                            <input type="email" name="email" maxlength="254" required id="id_email" class="form-control" placeholder="Enter Email" value="{{ form.email.value|default_if_none:'' }}">
+                        </p>
+                        <p>
+                            <label for="id_service">Service:</label>
+                            <input type="text" name="service" maxlength="100" required id="id_service" class="form-control" placeholder="Enter Service" value="{{ form.service.value|default_if_none:'' }}">
+                        </p>
+                        <p>
+                            <label for="id_charges">Charges:</label>
+                            <input type="number" name="charges" step="0.01" required id="id_charges" class="form-control" placeholder="Enter Charges" value="{{ form.charges.value|default_if_none:'' }}">
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            <label for="id_status">Status:</label>
+                            <select name="status" id="id_status" class="form-control">
+                                <option value="Pending" {% if form.status.value == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="In Progress" {% if form.status.value == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                <option value="Completed" {% if form.status.value == 'Completed' %}selected{% endif %}>Completed</option>
+                                <option value="Canceled" {% if form.status.value == 'Canceled' %}selected{% endif %}>Canceled</option>
+                            </select>
+                        </p>                        
+                        <p>
+                            <label for="id_completion_date">Completion Date:</label>
+                            {{form.completion_date}}
+                        </p>
+                        <p>
+                            <label for="id_order_date">Order Date:</label>
+                            {{ form.order_date}}
+                        </p>
+                        <p>
+                            <label for="id_report_link">Report Link:</label>
+                            <input type="url" name="report_link" maxlength="200" id="id_report_link" class="form-control" placeholder="Enter Report Link" value="{{ form.report_link.value|default_if_none:'' }}">
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <br><br>
+                        <p>
+                            <label for="id_client_inputs">Client Inputs:</label>
+                            <textarea name="client_inputs" cols="40" rows="4" required id="id_client_inputs" class="form-control" placeholder="Enter Client Inputs">{% if form.client_inputs.value %}{{ form.client_inputs.value }}{% endif %}</textarea>
+                        </p>
+                        
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="/order/" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Dashboard {% endblock %} 
+{% block title %} Status Dashboard {% endblock %}
 {% block stylesheets %}
 <!-- Add DataTables CSS and JS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
@@ -10,8 +10,8 @@
 <div class="content">
     <div class="row">
         <div class="col-12">
-            <h2>INVOICES</h2>
-            
+            <h2>STATUS LIST</h2>
+
             {% if messages %}
                 <div class="alert-container alert alert-dismissible fade show" role="alert">
                     {% for message in messages %}
@@ -31,83 +31,76 @@
                     }, 1000); 
                 </script>
             {% endif %}
-        
 
             <div class="d-flex" style="align-items: center;gap: 10px;">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                        Invoice
+                        Status Actions
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="{% url 'invoice:create_invoice' %}">Create Invoice</a>
-                        <a class="dropdown-item" href="{% url 'invoice:bank_details_view' %}">Logo And Bank</a>
+                        <a class="dropdown-item" href="{% url 'status:order_create' %}">Create Status</a>
                     </div>
                 </div>
-    
+
                 <!-- Multi-Delete Button -->
                 <div>
                     <button id="deleteSelected" class="btn btn-danger" disabled>Delete Selected</button>
                 </div>
-
             </div>
 
             <!-- Search input -->
             <div class="mt-3 mb-3">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search Invoices">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search Status">
             </div>
 
             <br>
-            <table id="invoiceTable" class="table">
+            <table id="statusTable" class="table col-md-12">
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="selectAll"></th>
-                        <th class="text-center">Invoice ID</th>
-                        <th class="text-center">Customer Name</th>
-                        <th class="text-center">Created Date</th>
-                        <th class="text-center">Total</th>
-                        <th class="text-center">Invoice No</th>
+                        <th class="text-center">Order ID</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Order Date</th>
+                        <th class="text-center">Service</th>
+                        <th class="text-center">Charges</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Completion Date</th>
+                        <th class="text-center">Report Link</th>
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for invoice in invoices %}
+                    {% for order in orders %}
                     <tr>
-                        <td><input type="checkbox" class="invoice-checkbox" value="{{ invoice.id }}"></td>
-                        <td class="text-center">{{ invoice.id }}</td>
-                        <td class="text-center">{{ invoice.customer_name }}</td>
-                        <td class="text-center">{{ invoice.invoice_date }}</td>
-                        <td class="text-center">{{ invoice.total }}</td>
-                        <td class="text-center">{{ invoice.invoice_number }}</td>
+                        <td><input type="checkbox" class="status-checkbox" value="{{ order.id }}"></td>
+                        <td class="text-center">{{ order.order_id|truncatechars:15 }}</td>
+                        <td class="text-center">{{ order.email|truncatechars:15 }}</td>
+                        <td class="text-center">{{ order.order_date|truncatechars:15 }}</td>
+                        <td class="text-center">{{ order.service|truncatechars:10 }}</td>
+                        <td class="text-center">{{ order.charges|truncatechars:15 }}</td>
+                        <td class="text-center">{{ order.status|truncatechars:15 }}</td>
+                        <td class="text-center">{{ order.completion_date|truncatechars:15 }}</td>
+                        <td class="text-center"><a href="{{ order.report_link }}" target="_blank">Link</a></td>
                         <td style="display: flex;justify-content: space-evenly;">
                             <span class="text-center">
-                                <a href="{% url 'invoice:edit_invoice' invoice.id %}" class="btn btn-success btn-sm">
+                                <a href="{% url 'status:order_update' order.id %}" class="btn btn-success btn-sm">
                                     <i class="tim-icons icon-settings"></i>
                                 </a>
                             </span>
                             <span class="text-center">
-                                <form action="{% url 'invoice:delete_invoice' invoice.id %}" method="POST" style="display:inline;">
+                                <form action="{% url 'status:order_delete' order.id %}" method="POST" style="display:inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger btn-sm">
                                         <i class="tim-icons icon-simple-remove"></i>
                                     </button>
                                 </form>
                             </span>
-                            <span class="text-center">
-                                <a href="{% url 'invoice:view_invoice' invoice.id %}" class="btn btn-info btn-sm">
-                                    <i class="tim-icons icon-paper"></i>
-                                </a>
-                            </span>
-                            <span class="text-center">
-                                <a href="{% url 'invoice:duplicate_invoice' invoice.id %}" class="btn btn-warning btn-sm">
-                                    <i class="tim-icons icon-single-copy-04"></i>
-                                </a>
-                            </span>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center">No invoices found.</td>
+                        <td colspan="10" class="text-center">No statuses found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -123,8 +116,8 @@ integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
 crossorigin="anonymous"></script>
 <script>
     $(document).ready(function() {
-        var table = $('#invoiceTable').DataTable({
-            "order": [[ 1, "asc" ]],  // Default sorting by Invoice ID
+        var table = $('#statusTable').DataTable({
+            "order": [[ 1, "asc" ]],  // Default sorting by Status ID
             "paging": true,
             "searching": true,
             "columnDefs": [
@@ -141,15 +134,15 @@ crossorigin="anonymous"></script>
         $('#selectAll').on('click', function() {
             var isChecked = this.checked;
             // Check/uncheck all checkboxes in the current DataTables page
-            $('.invoice-checkbox').each(function() {
+            $('.status-checkbox').each(function() {
                 $(this).prop('checked', isChecked);
             });
             toggleDeleteButton();
         });
 
         // Handle individual checkbox click
-        $(document).on('change', '.invoice-checkbox', function() {
-            if ($('.invoice-checkbox:checked').length == $('.invoice-checkbox').length) {
+        $(document).on('change', '.status-checkbox', function() {
+            if ($('.status-checkbox:checked').length == $('.status-checkbox').length) {
                 $('#selectAll').prop('checked', true);
             } else {
                 $('#selectAll').prop('checked', false);
@@ -159,7 +152,7 @@ crossorigin="anonymous"></script>
 
         // Enable or disable the delete button based on selection
         function toggleDeleteButton() {
-            if ($('.invoice-checkbox:checked').length > 0) {
+            if ($('.status-checkbox:checked').length > 0) {
                 $('#deleteSelected').prop('disabled', false);
             } else {
                 $('#deleteSelected').prop('disabled', true);
@@ -169,14 +162,14 @@ crossorigin="anonymous"></script>
         // Handle multi-delete button click
         $('#deleteSelected').on('click', function() {
             var selectedIds = [];
-            // Collect IDs of checked invoices
-            $('.invoice-checkbox:checked').each(function() {
+            // Collect IDs of checked statuses
+            $('.status-checkbox:checked').each(function() {
                 selectedIds.push($(this).val());
             });
 
-            if (selectedIds.length > 0 && confirm("Are you sure you want to delete the selected invoices?")) {
+            if (selectedIds.length > 0 && confirm("Are you sure you want to delete the selected statuses?")) {
                 $.ajax({
-                    url: "{% url 'invoice:bulk_delete' %}",  // Bulk delete URL
+                    url: "{% url 'status:bulk_delete' %}",  // Bulk delete URL
                     method: "POST",
                     data: {
                         'ids': selectedIds,  // Pass the selected IDs to the backend
@@ -185,14 +178,14 @@ crossorigin="anonymous"></script>
                     success: function(response) {
                         if (response.success) {
                             // For each selected row, apply fade out and then remove it from DataTable
-                            $('.invoice-checkbox:checked').each(function() {
+                            $('.status-checkbox:checked').each(function() {
                                 var row = $(this).closest('tr');
                                 $(row).fadeOut(800, function() {
                                     table.row(row).remove().draw(false);  // Remove row after fade out
                                 });
                             });
                         } else {
-                            alert('Error deleting invoices');
+                            alert('Error deleting statuses');
                         }
                     }
                 });

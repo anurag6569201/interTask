@@ -1,0 +1,20 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-12">
+                <h2>Confirm Delete Order</h2>
+                <p>Are you sure you want to delete "{{ order.order_id }}"?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit">Confirm</button>
+                </form>
+                <a href="{% url 'status:order_list' %}">Cancel</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

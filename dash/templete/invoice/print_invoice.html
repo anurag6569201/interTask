@@ -1,13 +1,28 @@
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Debit Note</title>
 <style>
+    @page {
+        size: A4;
+        margin: 20mm;
+    }
+
     body {
         font-family: Arial, sans-serif;
+        width: 210mm;
+        /* A4 page width */
+        height: 297mm;
+        /* A4 page height */
+        margin: 0 auto;
+        /* Center the content */
+        padding: 10mm;
+        /* Add some padding inside the page */
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     * {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     @media print {
@@ -104,19 +119,19 @@
     }
 
     .table-container .lb {
-        border-left: none;
+        border-left: none !important;
     }
 
     .table-container .rb {
-        border-right: none;
+        border-right: none !important;
     }
 
     .table-container .ub {
-        border-top: none;
+        border-top: none !important;
     }
 
     .table-container .bb {
-        border-bottom: none;
+        border-bottom: none !important;
     }
 
     .table-container li {
@@ -138,152 +153,343 @@
     .company_detail {
         min-width: 40%;
     }
+
+    .scanner-image-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    #download-pdf{
+        border: 1px solid black;
+        background-color: rgb(245, 245, 245);
+        border-radius: 8px;
+        padding: 10px 20px;
+    }
+    #download-pdf:hover{
+        background-color: rgb(235, 235, 235);
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease;
+        transition: transform 0.3s ease;
+        transform: translateY(-3px);
+    }
 </style>
-<div class="container">
-    <!-- Header Section -->
-    <table class="table-container">
-        <tbody>
-            <tr>
-                <td style="text-align: center;width: 100%;font-weight: 600;font-size: 2em;">TAX INVOICE</td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table-container">
-        <tbody>
-            <tr>
-                <td>
-                    <div class="header">
-                        <div class="company_logo"
-                            style="float: left;margin-right: auto;width: 30%;display: inline-flex;justify-content: left;">
-                            <img src="{{ bank_details.company_logo.url }}" alt="">
-                        </div>
-                        <div class="company_detail" style="float: left;margin-left: auto;width: 70%;text-align: right;">
-                            <h2>{{ invoice.company.name }}</h2>
-                            <p>{{ invoice.company.address }}<br>Phone No.: {{ invoice.company.phone }} <br> Email ID: {{
-                                invoice.company.email }} <br> Email ID: {{ invoice.company.website }}</p>
-                            <span>GST : {{ invoice.company.gst }}</span><br>
-                            <span>CIN : {{ invoice.company.cin }}</span>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- Invoice Details Section -->
-    <table class="table-container">
-        <tbody>
-            <tr>
-                <td class="wide50">Invoice Date : {{ invoice.invoice_date }}</td>
-                <td class="wide50">Invoice No. : {{ invoice.invoice_number }}</td>
-            </tr>
-            <tr>
-                <td>Transaction Date : {{ invoice.transaction_date }}</td>
-                <td>Due Date : {{ invoice.due_date }}</td>
-            </tr>
-            <tr>
-                <td>Service Source : {{ invoice.company.website }}</td>
-                <td>Payment ID : {{ invoice.company.payment_id }}</td>
-            </tr>
-            <tr>
-                <td colspan="2" style="text-align: center;">Customer Details</td>
-            </tr>
-        </tbody>
-    </table>
+<div style="display: flex;align-items: center;justify-content: center;">
+    <button id="download-pdf">Download PDF</button>
+    <button id="save-to-drive">Save to Google Drive</button>
+</div>
 
-    <!-- Customer Details Section -->
-    <table class="table-container">
-        <tbody>
-            <tr>
-                <td class="wide50">Customer Name : {{ invoice.customer_name }}</td>
-                <td class="wide50">Customer Email : {{ invoice.customer_email }}</td>
-            </tr>
-            <tr>
-                <td class="wide50">Customer Phone : {{ invoice.customer_phone}}</td>
-                <td class="wide50">Customer Address : {{ invoice.customer_address }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Items Table Section -->
-    <table class="table-container">
-        <tbody>
-            <tr>
-                <td class="wide15">SR. No.</td>
-                <td class="wide20">Service Name</td>
-                <td class="wide15">Qty</td>
-                <td>Price/Service</td>
-                <td class="wide20">Amount Incl Tax</td>
-            </tr>
-            {% for item in items %}
-            <tr>
-                <td style="text-align: right;">{{ forloop.counter }}</td>
-                <td style="text-align: right;">{{ item.item_name}}</td>
-                <td style="text-align: right;">{{ item.quantity }}</td>
-                <td>{{ item.price_per_unit }}</td>
-                <td style="text-align: right;">{{ item.price_incl_tax }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- Totals Section -->
-    <table class="table-container">
-        <tbody>
-            <tr>
-                <td rowspan="3" class="wide10 rb"></td>
-                <td rowspan="3" class="wide40 lb"></td>
-                <td style="text-align: right;">Total Amount</td>
-                <td style="text-align: right;" class="wide20">{{ invoice.total_taxable_amount }}</td>
-            </tr>
-            <tr>
-                <td style="text-align: right;">IGST @18%</td>
-                <td style="text-align: right;">{{ invoice.tax_amount }}</td>
-            </tr>
-            <tr>
-                <td style="text-align: right;">Grand Total</td>
-                <td style="text-align: right;">{{ invoice.total }}</td>
-            </tr>
-            <tr>
-                <td class="wide15">In Words</td>
-                <td colspan="3">{{ total_in_word }} only.</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Bank Details Section -->
-    <div class="footer">
-        <table class="bank-details table-container wide50">
-            <thead>
-                <tr>
-                    <th>Bank Details</th>
-                    <th>Authority Sign</th>
-                </tr>
-            </thead>
+<div style="padding: 25px" class="pdf_invoice">
+    <div class="container">
+        <!-- Header Section -->
+        <table class="table-container bb">
             <tbody>
                 <tr>
-                    <td>Please Pay the QR/UPI/PAYMENT ID transfer in favour of '{{ invoice.company.name }}'</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>Bank Name: <b>{{ bank_details.bank_name }}</b></td>
-                    <td>Account No. : <b>{{ bank_details.account_number }}</b></td>
-                </tr>
-                <tr>
-                    <td>IFSC Code : <b>{{ bank_details.ifsc_code }}</b></td>
-                    <td>GST No. : <b>{{ invoice.company.gst }}</b></td>
-                </tr>
-                <tr class="company_logo00 wide50">
-                    <td><img style="width: 150px;" src="{{ bank_details.qr_scanner_image.url }}" alt="Scanner Image"
-                            class="scanner-image" /></td>
-                    <td><img style="width: 150px;" src="{{ bank_details.sign_seal_image.url }}" alt="Seal Image"
-                            class="seal-image" /></td>
+                    <td style="
+                      text-align: center;
+                      width: 100%;
+                      font-weight: 600;
+                      font-size: 2em;
+                    " class="bb">
+                        TAX INVOICE
+                    </td>
                 </tr>
             </tbody>
         </table>
+        <table class="table-container" style="border-top: none; border-bottom: none">
+            <tbody>
+                <tr>
+                    <td class="bb ub lb rb">
+                        <div class="header">
+                            <div class="company_logo" style="
+                          float: left;
+                          margin-right: auto;
+                          width: 30%;
+                          display: inline-flex;
+                          justify-content: left;
+                        ">
+                                <img src="{{ bank_details.company_logo.url }}" alt="" />
+                            </div>
+                            <div class="company_detail" style="
+                          float: left;
+                          margin-left: auto;
+                          width: 70%;
+                          text-align: right;
+                        ">
+                                <h2>{{ invoice.company.name }}</h2>
+                                <p>
+                                    {{ invoice.company.address }}<br />Phone No.: {{ invoice.company.phone }} <br />
+                                    Email ID: {{ invoice.company.email }} <br />
+                                    Email ID: {{ invoice.company.website }}
+                                </p>
+                                <span>GST : {{ invoice.company.gst }}</span><br />
+                                <span>CIN : {{ invoice.company.cin }}</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Invoice Details Section -->
+        <table class="table-container">
+            <tbody>
+                <tr>
+                    <td class="wide50">Invoice Date : {{ invoice.invoice_date }}</td>
+                    <td class="wide50">Invoice No. : {{ invoice.invoice_number }}</td>
+                </tr>
+                <tr>
+                    <td>Transaction Date : {{ invoice.transaction_date }}</td>
+                    <td>Due Date : {{ invoice.due_date }}</td>
+                </tr>
+                <tr>
+                    <td>Service Source : {{ invoice.company.website }}</td>
+                    <td>Payment ID : {{ invoice.company.payment_id }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="bb" style="text-align: center">
+                        Customer Details
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Customer Details Section -->
+        <table class="table-container" style="border-top: none; border-bottom: none">
+            <tbody>
+                <tr>
+                    <td class="wide50 ub">Customer Name : {{ invoice.customer_name }}</td>
+                    <td class="wide50 ub">
+                        Customer Email : {{ invoice.customer_email }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="wide50 bb">
+                        Customer Phone : {{ invoice.customer_phone}}
+                    </td>
+                    <td class="wide50 bb">
+                        Customer Address : {{ invoice.customer_address }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Items Table Section -->
+        <table class="table-container">
+            <tbody>
+                <tr>
+                    <td class="wide15">SR. No.</td>
+                    <td class="wide20">Service Name</td>
+                    <td class="wide15">Qty</td>
+                    <td>Price/Service</td>
+                    <td class="wide20">Amount Incl Tax</td>
+                </tr>
+                {% for item in items %}
+                <tr>
+                    <td style="text-align: right">{{ forloop.counter }}</td>
+                    <td style="text-align: right">{{ item.item_name}}</td>
+                    <td style="text-align: right">{{ item.quantity }}</td>
+                    <td>{{ item.price_per_unit }}</td>
+                    <td style="text-align: right">{{ item.price_incl_tax }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Totals Section -->
+        <table class="table-container" style="border: none">
+            <tbody>
+                <tr>
+                    <td rowspan="3" class="wide10 rb ub"></td>
+                    <td rowspan="3" class="wide40 lb ub"></td>
+                    <td style="text-align: right" class="ub">Total Amount</td>
+                    <td style="text-align: right" class="wide20 ub">
+                        {{ invoice.total_taxable_amount }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: right">IGST @18%</td>
+                    <td style="text-align: right">{{ invoice.tax_amount }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: right">Grand Total</td>
+                    <td style="text-align: right">{{ invoice.total }}</td>
+                </tr>
+                <tr>
+                    <td class="wide15 bb">In Words</td>
+                    <td colspan="3" class="bb">{{ total_in_word }} only.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Bank Details Section -->
+        <div class="footer">
+            <table class="bank-details table-container wide50">
+                <thead>
+                    <tr>
+                        <th>Bank Details</th>
+                        <th>Authority Sign</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            Please Pay the QR/UPI/PAYMENT ID transfer in favour of '{{invoice.company.name }}'
+                        </td>
+                        <td rowspan="5" class="company_logo00 wide30">
+                            <img style="width: 150px" src="{{ bank_details.sign_seal_image.url }}" alt="Seal Image"
+                                class="seal-image" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td rowspan="4" class="company_logo00 wide50">
+                            <span style="float: left">Bank Name: <b>{{ bank_details.bank_name }}</b><br />Account No.
+                                : <b>{{ bank_details.account_number }}</b><br />GST No. :
+                                <b>{{ invoice.company.gst }}</b><br />IFSC Code :
+                                <b>{{ bank_details.ifsc_code }}</b></span>
+                            <img style="width: 150px; float: right" src="{{ bank_details.qr_scanner_image.url }}"
+                                alt="Scanner Image" class="scanner-image" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-
-
-
 </div>
+<script>
+    document
+        .getElementById("download-pdf")
+        .addEventListener("click", function () {
+            const invoiceElement = document.querySelector(".pdf_invoice");
+
+            html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+                const imgData = canvas.toDataURL("image/png");
+                const pdf = new jspdf.jsPDF("p", "mm", "a4");
+
+                const pageWidth = 210;
+                const pageHeight = 297;
+
+                const canvasWidth = canvas.width;
+                const canvasHeight = canvas.height;
+
+                const imgWidth = pageWidth;
+                const imgHeight = (canvasHeight * imgWidth) / canvasWidth;
+
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save(`invoice_.pdf`);
+            });
+        });
+</script>
+<!-- Include the Google API JavaScript -->
+<script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+
+<script>
+    var oauthToken;
+
+    // Load the Google Picker API
+    function loadPicker() {
+        gapi.load('auth', {'callback': onAuthApiLoad});
+        gapi.load('picker', {'callback': onPickerApiLoad});
+    }
+
+    // Authenticate the user and obtain an OAuth token
+    function onAuthApiLoad() {
+        gapi.auth.authorize({
+            'client_id': '56446602629-nd99jj2vkijec11p7pur086aimp2oq07.apps.googleusercontent.com',  // Replace with your Google Client ID
+            'scope': ['https://www.googleapis.com/auth/drive.file'],
+            'immediate': false
+        }, handleAuthResult);
+    }
+
+    function handleAuthResult(authResult) {
+        if (authResult && !authResult.error) {
+            oauthToken = authResult.access_token;
+            createPicker();
+        }
+    }
+
+    // Create and display the Google Picker
+    function createPicker() {
+        const invoiceElement = document.querySelector('.pdf_invoice');
+        html2canvas(invoiceElement, { scale: 2 }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const imgWidth = pageWidth;
+            const imgHeight = (canvasHeight * imgWidth) / canvasWidth;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            // Convert PDF to Blob
+            const pdfBlob = pdf.output('blob');
+
+            // Create a Google Picker for uploading the file
+            var picker = new google.picker.PickerBuilder()
+                .addView(new google.picker.DocsUploadView())
+                .setOAuthToken(oauthToken)
+                .setDeveloperKey('AIzaSyD12saXP3xY6J1d4q8wqREYcNpU5Yr8PMI')  // Replace with your Google API key
+                .setCallback(function(data) {
+                    if (data.action === google.picker.Action.PICKED) {
+                        uploadFileToDrive(data.docs[0].id, pdfBlob);
+                    }
+                })
+                .build();
+            picker.setVisible(true);
+        });
+    }
+
+    // Upload the PDF Blob to Google Drive
+    function uploadFileToDrive(folderId, fileBlob) {
+        var formData = new FormData();
+        formData.append('file', fileBlob, 'invoice.pdf');
+
+        fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id&parents=${folderId}`, {
+            method: 'POST',
+            headers: new Headers({
+                'Authorization': 'Bearer ' + oauthToken
+            }),
+            body: formData
+        }).then((response) => response.json())
+          .then((data) => {
+              if (data.id) {
+                  alert('File successfully saved to Google Drive.');
+              } else {
+                  alert('Error uploading file.');
+              }
+          });
+    }
+
+    // Save to Google Drive button
+    document.getElementById('save-to-drive').addEventListener('click', function () {
+        loadPicker();  // Authenticate and create the picker
+    });
+</script>
