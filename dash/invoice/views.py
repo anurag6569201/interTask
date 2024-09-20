@@ -16,7 +16,7 @@ from .forms import BankDetailsForm
 
 
 # Invoice list page
-@login_required(login_url="/login/")
+@login_required(login_url='authentication:login')
 def invoice(request):
     invoices = Invoice.objects.all()
     context = {
@@ -29,7 +29,7 @@ def invoice(request):
 
 
 # Creation of invoices
-@login_required(login_url="/login/")
+@login_required(login_url='authentication:login')
 
 def create_invoice(request):
     ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=10, can_delete=True)
@@ -55,6 +55,7 @@ def create_invoice(request):
 
 
 # editing of the invoice
+@login_required(login_url='authentication:login')
 def edit_invoice(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=0, can_delete=True)
@@ -81,7 +82,7 @@ def edit_invoice(request, pk):
 
 
 # duplication of the invoice form
-@login_required(login_url="/login/")
+@login_required(login_url='authentication:login')
 def duplicate_invoice(request, pk):
     original_invoice = get_object_or_404(Invoice, pk=pk)
 
@@ -121,7 +122,7 @@ def duplicate_invoice(request, pk):
 
 
 # deletion of the invoice
-@login_required(login_url="/login/")
+@login_required(login_url='authentication:login')
 def delete_invoice(request, pk):
     invoice = Invoice.objects.get(pk=pk)
     if request.method == 'POST':
@@ -142,7 +143,7 @@ def bulk_delete_invoices(request):
     return JsonResponse({'success': False})
 
 
-
+@login_required(login_url='authentication:login')
 def view_invoice(request,pk):
     invoice = get_object_or_404(Invoice, id=pk)
     items = invoice.items.all()
@@ -162,7 +163,7 @@ def view_invoice(request,pk):
 
 
 
-
+@login_required(login_url='authentication:login')
 def bank_details_view(request):
     bank_details = BankDetails.objects.first()  # Or use get_object_or_404 if you have an ID
     if request.method == 'POST':

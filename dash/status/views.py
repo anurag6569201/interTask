@@ -4,13 +4,14 @@ from .forms import OrderForm
 from django.contrib.auth.decorators import login_required
 
 # List Orders
-@login_required(login_url="/login/")
+@login_required(login_url='authentication:login')
 def order_list(request):
     orders = Order.objects.all()
 
     return render(request, 'status/order_list.html', {'orders': orders})
 
 # Create Order
+@login_required(login_url='authentication:login')
 def order_create(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
@@ -22,6 +23,7 @@ def order_create(request):
     return render(request, 'status/order_form.html', {'form': form})
 
 # Update Order
+@login_required(login_url='authentication:login')
 def order_update(request, pk):
     order = get_object_or_404(Order, pk=pk)
     if request.method == 'POST':
@@ -34,6 +36,7 @@ def order_update(request, pk):
     return render(request, 'status/order_form_edit.html', {'form': form})
 
 # Delete Order
+@login_required(login_url='authentication:login')
 def order_delete(request, pk):
     order = get_object_or_404(Order, pk=pk)
     if request.method == 'POST':

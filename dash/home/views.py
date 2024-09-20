@@ -7,11 +7,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@login_required(login_url="/login/")
+@login_required(login_url='authentication:login')
 def index(request):
     return render(request, 'home/index.html')
 
-@login_required(login_url="/login/")
+@login_required(login_url='authentication:login')
 def pages(request):
     context = {}
     try:

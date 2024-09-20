@@ -38,15 +38,16 @@
                                 <div class="row">
                                     <div class="col-md-12 px-md-1">
                                         <div class="form-group">
-                                            <label>Username</label>
-                                            {{ form.username }}
+                                            <label>Email</label>
+                                            <input class="form-control" type="text" name="email" maxlength="100" required="" id="login_username">
+
                                         </div>
                                     </div>
 
                                     <div class="col-md-12 px-md-1">
                                         <div class="form-group">
                                             <label>Password</label>
-                                            {{ form.password }}
+                                            <input class="form-control" type="password" name="password" autocomplete="current-password" required="" id="login_password">
                                         </div>
                                     </div>
                                 </div>
