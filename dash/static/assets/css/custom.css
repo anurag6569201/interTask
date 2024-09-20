@@ -17,3 +17,19 @@
 .alert-container{
     padding: 0;
 }
+@media (max-width: 768px){
+    *{
+        font-size: 13px;
+    }
+    .table-responsive *{
+        font-size: 10px;
+    }
+    .items_adding_table{
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .items_adding_table *{
+        font-size: 7px;
+    }
+}

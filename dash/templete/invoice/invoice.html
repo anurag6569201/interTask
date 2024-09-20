@@ -58,60 +58,62 @@
             </div>
 
             <br>
-            <table id="invoiceTable" class="table">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="selectAll"></th>
-                        <th class="text-center">Invoice ID</th>
-                        <th class="text-center">Customer Name</th>
-                        <th class="text-center">Created Date</th>
-                        <th class="text-center">Total</th>
-                        <th class="text-center">Invoice No</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for invoice in invoices %}
-                    <tr>
-                        <td><input type="checkbox" class="invoice-checkbox" value="{{ invoice.id }}"></td>
-                        <td class="text-center">{{ invoice.id }}</td>
-                        <td class="text-center">{{ invoice.customer_name }}</td>
-                        <td class="text-center">{{ invoice.invoice_date }}</td>
-                        <td class="text-center">{{ invoice.total }}</td>
-                        <td class="text-center">{{ invoice.invoice_number }}</td>
-                        <td style="display: flex;justify-content: space-evenly;">
-                            <span class="text-center">
-                                <a href="{% url 'invoice:edit_invoice' invoice.id %}" class="btn btn-success btn-sm">
-                                    <i class="tim-icons icon-settings"></i>
-                                </a>
-                            </span>
-                            <span class="text-center">
-                                <form action="{% url 'invoice:delete_invoice' invoice.id %}" method="POST" style="display:inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="tim-icons icon-simple-remove"></i>
-                                    </button>
-                                </form>
-                            </span>
-                            <span class="text-center">
-                                <a href="{% url 'invoice:view_invoice' invoice.id %}" class="btn btn-info btn-sm">
-                                    <i class="tim-icons icon-paper"></i>
-                                </a>
-                            </span>
-                            <span class="text-center">
-                                <a href="{% url 'invoice:duplicate_invoice' invoice.id %}" class="btn btn-warning btn-sm">
-                                    <i class="tim-icons icon-single-copy-04"></i>
-                                </a>
-                            </span>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">No invoices found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="invoiceTable" class="table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll"></th>
+                            <th class="text-center">Invoice ID</th>
+                            <th class="text-center">Customer Name</th>
+                            <th class="text-center">Created Date</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Invoice No</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td><input type="checkbox" class="invoice-checkbox" value="{{ invoice.id }}"></td>
+                            <td class="text-center">{{ invoice.id }}</td>
+                            <td class="text-center">{{ invoice.customer_name }}</td>
+                            <td class="text-center">{{ invoice.invoice_date }}</td>
+                            <td class="text-center">{{ invoice.total }}</td>
+                            <td class="text-center">{{ invoice.invoice_number }}</td>
+                            <td style="display: flex;justify-content: space-evenly;">
+                                <span class="text-center">
+                                    <a href="{% url 'invoice:edit_invoice' invoice.id %}" class="btn btn-success btn-sm">
+                                        <i class="tim-icons icon-settings"></i>
+                                    </a>
+                                </span>
+                                <span class="text-center">
+                                    <form action="{% url 'invoice:delete_invoice' invoice.id %}" method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="tim-icons icon-simple-remove"></i>
+                                        </button>
+                                    </form>
+                                </span>
+                                <span class="text-center">
+                                    <a href="{% url 'invoice:view_invoice' invoice.id %}" class="btn btn-info btn-sm">
+                                        <i class="tim-icons icon-paper"></i>
+                                    </a>
+                                </span>
+                                <span class="text-center">
+                                    <a href="{% url 'invoice:duplicate_invoice' invoice.id %}" class="btn btn-warning btn-sm">
+                                        <i class="tim-icons icon-single-copy-04"></i>
+                                    </a>
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No invoices found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -124,30 +126,26 @@ crossorigin="anonymous"></script>
 <script>
     $(document).ready(function() {
         var table = $('#invoiceTable').DataTable({
-            "order": [[ 1, "asc" ]],  // Default sorting by Invoice ID
+            "order": [[ 1, "asc" ]],  
             "paging": true,
             "searching": true,
             "columnDefs": [
-                { "orderable": false, "targets": 0 }  // Disable sorting on the checkbox column
+                { "orderable": false, "targets": 0 } 
             ]
         });
 
-        // Search function
         $('#searchInput').on('keyup', function() {
             table.search(this.value).draw();
         });
 
-        // Handle 'select all' checkbox click
         $('#selectAll').on('click', function() {
             var isChecked = this.checked;
-            // Check/uncheck all checkboxes in the current DataTables page
             $('.invoice-checkbox').each(function() {
                 $(this).prop('checked', isChecked);
             });
             toggleDeleteButton();
         });
 
-        // Handle individual checkbox click
         $(document).on('change', '.invoice-checkbox', function() {
             if ($('.invoice-checkbox:checked').length == $('.invoice-checkbox').length) {
                 $('#selectAll').prop('checked', true);
@@ -157,7 +155,6 @@ crossorigin="anonymous"></script>
             toggleDeleteButton();
         });
 
-        // Enable or disable the delete button based on selection
         function toggleDeleteButton() {
             if ($('.invoice-checkbox:checked').length > 0) {
                 $('#deleteSelected').prop('disabled', false);
@@ -166,29 +163,27 @@ crossorigin="anonymous"></script>
             }
         }
 
-        // Handle multi-delete button click
         $('#deleteSelected').on('click', function() {
             var selectedIds = [];
-            // Collect IDs of checked invoices
             $('.invoice-checkbox:checked').each(function() {
                 selectedIds.push($(this).val());
             });
 
             if (selectedIds.length > 0 && confirm("Are you sure you want to delete the selected invoices?")) {
                 $.ajax({
-                    url: "{% url 'invoice:bulk_delete' %}",  // Bulk delete URL
+                    url: "{% url 'invoice:bulk_delete' %}", 
                     method: "POST",
                     data: {
-                        'ids': selectedIds,  // Pass the selected IDs to the backend
+                        'ids': selectedIds,  
                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
                     success: function(response) {
                         if (response.success) {
-                            // For each selected row, apply fade out and then remove it from DataTable
+                           
                             $('.invoice-checkbox:checked').each(function() {
                                 var row = $(this).closest('tr');
                                 $(row).fadeOut(800, function() {
-                                    table.row(row).remove().draw(false);  // Remove row after fade out
+                                    table.row(row).remove().draw(false);  
                                 });
                             });
                         } else {

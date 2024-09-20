@@ -78,7 +78,7 @@
                 <br>
                 <h3 style="margin: 0;padding: 0;">Invoice Items</h3>
                 <br>
-                <table class="table">
+                <table class="table items_adding_table">
                     <thead>
                         <tr>
                             <th>Item No</th>
@@ -138,7 +138,6 @@
                         return;
                     }
                 
-                    // Function to update total forms count when an item is deleted
                     function updateTotalForms() {
                         const rows = document.querySelectorAll('tbody tr');
                         if (totalForms) {
@@ -148,12 +147,10 @@
                         }
                     }
                 
-                    // Function to calculate item totals
                     function calculateItemTotals() {
                         let totalTaxableAmount = 0;
-                        const taxRate = 18; // Fixed tax rate
+                        const taxRate = 18; 
                 
-                        // Iterate over each row in the table
                         document.querySelectorAll('tbody tr').forEach(row => {
                             const quantityInput = row.querySelector('.quantity');
                             const pricePerUnitInput = row.querySelector('.price-per-unit');
@@ -170,7 +167,6 @@
                             totalTaxableAmount += itemTotal;
                         });
                 
-                        // Update total fields
                         const taxableAmountField = document.getElementById('id_total_taxable_amount');
                         const taxAmountField = document.getElementById('id_tax_amount');
                         const totalField = document.getElementById('id_total');
@@ -183,7 +179,6 @@
                         totalField.value = grandTotal;
                     }
                 
-                    // Function to handle adding new items
                     function handleAddItem() {
                         const currentForms = parseInt(totalForms.value, 10);
                 
@@ -199,50 +194,44 @@
                             const name = input.name.replace(`-${currentForms - 1}-`, `-${currentForms}-`);
                             input.name = name;
                             input.id = `id_${name}`;
-                            input.value = ''; // Reset value
+                            input.value = ''; 
                         });
                 
                         document.querySelector('tbody').appendChild(newForm);
                         totalForms.value = currentForms + 1;
                 
-                        // Reapply delete functionality to the new row
                         newForm.querySelector('.delete-item').addEventListener('click', function() {
                             const row = this.closest('tr');
                             if (row) {
                                 row.remove();
-                                updateTotalForms(); // Update the total forms count when an item is deleted
-                                calculateItemTotals(); // Recalculate totals after deletion
+                                updateTotalForms();
+                                calculateItemTotals(); 
                             }
                         });
                 
-                        // Attach event listeners to new inputs
                         addEventListenersToInputs();
-                        calculateItemTotals(); // Recalculate totals after adding new item
+                        calculateItemTotals();
                     }
                 
-                    // Function to add event listeners to inputs
                     function addEventListenersToInputs() {
                         document.querySelectorAll('.quantity, .price-per-unit').forEach(input => {
-                            input.removeEventListener('input', calculateItemTotals); // Remove existing listeners
-                            input.addEventListener('input', calculateItemTotals); // Add new listeners
+                            input.removeEventListener('input', calculateItemTotals); 
+                            input.addEventListener('input', calculateItemTotals); 
                         });
                     }
                 
-                    // Initial setup
                     addEventListenersToInputs();
                     calculateItemTotals();
                 
-                    // Attach event listener to the add item button
                     addItemButton.addEventListener('click', handleAddItem);
                 
-                    // Initial delete functionality for existing rows
                     document.querySelectorAll('.delete-item').forEach(function(btn) {
                         btn.addEventListener('click', function() {
                             const row = this.closest('tr');
                             if (row) {
                                 row.remove();
-                                updateTotalForms(); // Update the total forms count when an item is deleted
-                                calculateItemTotals(); // Recalculate totals after deletion
+                                updateTotalForms(); 
+                                calculateItemTotals(); 
                             }
                         });
                     });

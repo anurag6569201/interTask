@@ -55,56 +55,58 @@
             </div>
 
             <br>
-            <table id="statusTable" class="table col-md-12">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="selectAll"></th>
-                        <th class="text-center">Order ID</th>
-                        <th class="text-center">Email</th>
-                        <th class="text-center">Order Date</th>
-                        <th class="text-center">Service</th>
-                        <th class="text-center">Charges</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Completion Date</th>
-                        <th class="text-center">Report Link</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                    <tr>
-                        <td><input type="checkbox" class="status-checkbox" value="{{ order.id }}"></td>
-                        <td class="text-center">{{ order.order_id|truncatechars:15 }}</td>
-                        <td class="text-center">{{ order.email|truncatechars:15 }}</td>
-                        <td class="text-center">{{ order.order_date|truncatechars:15 }}</td>
-                        <td class="text-center">{{ order.service|truncatechars:10 }}</td>
-                        <td class="text-center">{{ order.charges|truncatechars:15 }}</td>
-                        <td class="text-center">{{ order.status|truncatechars:15 }}</td>
-                        <td class="text-center">{{ order.completion_date|truncatechars:15 }}</td>
-                        <td class="text-center"><a href="{{ order.report_link }}" target="_blank">Link</a></td>
-                        <td style="display: flex;justify-content: space-evenly;">
-                            <span class="text-center">
-                                <a href="{% url 'status:order_update' order.id %}" class="btn btn-success btn-sm">
-                                    <i class="tim-icons icon-settings"></i>
-                                </a>
-                            </span>
-                            <span class="text-center">
-                                <form action="{% url 'status:order_delete' order.id %}" method="POST" style="display:inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="tim-icons icon-simple-remove"></i>
-                                    </button>
-                                </form>
-                            </span>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="10" class="text-center">No statuses found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="statusTable" class="table col-md-12">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll"></th>
+                            <th class="text-center">Order ID</th>
+                            <th class="text-center">Email</th>
+                            <th class="text-center">Order Date</th>
+                            <th class="text-center">Service</th>
+                            <th class="text-center">Charges</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Completion Date</th>
+                            <th class="text-center">Report Link</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td><input type="checkbox" class="status-checkbox" value="{{ order.id }}"></td>
+                            <td class="text-center">{{ order.order_id|truncatechars:15 }}</td>
+                            <td class="text-center">{{ order.email|truncatechars:15 }}</td>
+                            <td class="text-center">{{ order.order_date|truncatechars:15 }}</td>
+                            <td class="text-center">{{ order.service|truncatechars:10 }}</td>
+                            <td class="text-center">{{ order.charges|truncatechars:15 }}</td>
+                            <td class="text-center">{{ order.status|truncatechars:15 }}</td>
+                            <td class="text-center">{{ order.completion_date|truncatechars:15 }}</td>
+                            <td class="text-center"><a href="{{ order.report_link }}" target="_blank">Link</a></td>
+                            <td style="display: flex;justify-content: space-evenly;">
+                                <span class="text-center">
+                                    <a href="{% url 'status:order_update' order.id %}" class="btn btn-success btn-sm">
+                                        <i class="tim-icons icon-settings"></i>
+                                    </a>
+                                </span>
+                                <span class="text-center">
+                                    <form action="{% url 'status:order_delete' order.id %}" method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="tim-icons icon-simple-remove"></i>
+                                        </button>
+                                    </form>
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center">No statuses found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -117,30 +119,26 @@ crossorigin="anonymous"></script>
 <script>
     $(document).ready(function() {
         var table = $('#statusTable').DataTable({
-            "order": [[ 1, "asc" ]],  // Default sorting by Status ID
+            "order": [[ 1, "asc" ]],  
             "paging": true,
             "searching": true,
             "columnDefs": [
-                { "orderable": false, "targets": 0 }  // Disable sorting on the checkbox column
+                { "orderable": false, "targets": 0 } 
             ]
         });
 
-        // Search function
         $('#searchInput').on('keyup', function() {
             table.search(this.value).draw();
         });
 
-        // Handle 'select all' checkbox click
         $('#selectAll').on('click', function() {
             var isChecked = this.checked;
-            // Check/uncheck all checkboxes in the current DataTables page
             $('.status-checkbox').each(function() {
                 $(this).prop('checked', isChecked);
             });
             toggleDeleteButton();
         });
 
-        // Handle individual checkbox click
         $(document).on('change', '.status-checkbox', function() {
             if ($('.status-checkbox:checked').length == $('.status-checkbox').length) {
                 $('#selectAll').prop('checked', true);
@@ -150,7 +148,6 @@ crossorigin="anonymous"></script>
             toggleDeleteButton();
         });
 
-        // Enable or disable the delete button based on selection
         function toggleDeleteButton() {
             if ($('.status-checkbox:checked').length > 0) {
                 $('#deleteSelected').prop('disabled', false);
@@ -159,29 +156,26 @@ crossorigin="anonymous"></script>
             }
         }
 
-        // Handle multi-delete button click
         $('#deleteSelected').on('click', function() {
             var selectedIds = [];
-            // Collect IDs of checked statuses
             $('.status-checkbox:checked').each(function() {
                 selectedIds.push($(this).val());
             });
 
             if (selectedIds.length > 0 && confirm("Are you sure you want to delete the selected statuses?")) {
                 $.ajax({
-                    url: "{% url 'status:bulk_delete' %}",  // Bulk delete URL
+                    url: "{% url 'status:bulk_delete' %}",
                     method: "POST",
                     data: {
-                        'ids': selectedIds,  // Pass the selected IDs to the backend
+                        'ids': selectedIds,
                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
                     success: function(response) {
                         if (response.success) {
-                            // For each selected row, apply fade out and then remove it from DataTable
                             $('.status-checkbox:checked').each(function() {
                                 var row = $(this).closest('tr');
                                 $(row).fadeOut(800, function() {
-                                    table.row(row).remove().draw(false);  // Remove row after fade out
+                                    table.row(row).remove().draw(false);  
                                 });
                             });
                         } else {

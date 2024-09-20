@@ -163,12 +163,11 @@
                         document.getElementById('invoice-items').appendChild(newRow);
                         formCount++;
                         totalFormsInput.value = formCount;
-                        attachEventListeners(); // Reattach event listeners to the new form
+                        attachEventListeners(); 
                         calculateItemTotals();
                     }
 
                     function attachEventListeners() {
-                        // Remove previous event listeners
                         document.querySelectorAll('.delete-item').forEach(btn => {
                             btn.removeEventListener('click', handleDeleteItem);
                         });
@@ -186,8 +185,8 @@
                     function handleDeleteItem() {
                         const row = this.closest('tr');
                         if (row) {
-                            row.querySelector('input[name$="-DELETE"]').value = 'on'; // Mark as deleted
-                            row.style.display = 'none'; // Hide the row visually
+                            row.querySelector('input[name$="-DELETE"]').value = 'on';
+                            row.style.display = 'none'; 
                             calculateItemTotals();
                         }
                     }
@@ -197,7 +196,6 @@
                         const taxRate = parseFloat(document.getElementById('id_tax_rate')?.value) || 0;
 
                         document.querySelectorAll('#invoice-items .item-row').forEach(row => {
-                            // Skip rows marked for deletion
                             const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
                             if (deleteCheckbox && deleteCheckbox.checked) {
                                 return;
