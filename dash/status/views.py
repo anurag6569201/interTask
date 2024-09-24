@@ -54,3 +54,16 @@ def bulk_delete_status(request):
         return JsonResponse({'success': True})  # Return a success response
     else:
         return JsonResponse({'success': False, 'error': 'No statuses selected'}, status=400)
+    
+
+from .forms import EmailSearchForm
+
+def check_order_status(request):
+    form = EmailSearchForm(request.GET or None)
+    orders = None
+    
+    if form.is_valid():
+        email = form.cleaned_data.get('email')
+        orders = Order.objects.filter(email=email)  # Filter orders by email
+    
+    return render(request, 'status/check_order_status.html', {'form': form, 'orders': orders})

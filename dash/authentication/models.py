@@ -32,3 +32,14 @@ class User(AbstractUser):
         return self.username
 
     
+from django.utils import timezone
+from datetime import timedelta
+
+class OTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_valid(self):
+        expiration_time = self.created_at + timedelta(minutes=10)
+        return timezone.now() < expiration_time

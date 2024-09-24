@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status</title>
+    <link rel="stylesheet" href="{% static 'assets/css/black-dashboard.css' %}">
+    <script src="{% static 'assets/js/black-dashboard.min.js' %}"></script>
+    <style>
+        body.white-content {
+            background-color: #f8f9fa; /* Light background */
+            color: #333; /* Dark text for readability */
+        }
+
+        .card {
+            background-color: #ffffff; /* White background for cards */
+            border: 1px solid #e3e3e3; /* Light border */
+        }
+
+        .table th {
+            background-color: #f8f9fa; /* Light background for table headers */
+            color: #333; /* Dark text */
+            text-align: center;
+        }
+
+        /* Status coloring */
+        .status-completed {
+            color: #28a745 !important; /* Green for Completed */
+            font-weight: bold;
+            border: 1px solid #28a745;
+            border-radius: 5px;
+            padding: 4px 8px;
+        }
+
+        .status-in-progress {
+            color: #ffc107 !important; /* Yellow for In Progress */
+            font-weight: bold;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 4px 8px;
+        }
+
+        .status-pending {
+            color: #007bff !important; /* Blue for Pending */
+            font-weight: bold;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            padding: 4px 8px;
+        }
+
+        .status-canceled {
+            color: #dc3545 !important; /* Red for Canceled */
+            font-weight: bold;
+            border: 1px solid #dc3545;
+            border-radius: 5px;
+            padding: 4px 8px;
+        }
+
+        .vertical-table {
+            width: 100%;
+        }
+
+        .vertical-table td {
+            padding: 8px;
+            border: 1px solid #e3e3e3;
+        }
+
+        .vertical-table th {
+            text-align: left;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 8px;
+            width: 30%;
+        }
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent; /* Optionally, remove the scrollbar background */
+        }
+    </style>
+</head>
+<body class="white-content">
+    <div class="content">
+        <div class="row" style="align-items: center; justify-content: center;margin-top: 30px;">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="card-title text-center">Check Your Order Status</h1>
+                    </div>
+                    <div class="card-body">
+                        <form method="get" action="{% url 'status:check_order_status' %}">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="id_email">Enter Your Email</label>
+                                        {{ form.email }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center">
+                                <button type="submit" class="btn btn-primary">Check Status</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {% if orders is not None %}
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h1 class="card-title text-center">Order Results</h1>
+                        </div>
+                        <div class="card-body">
+                            {% if orders %}
+                                {% for order in orders %}
+                                    <table class="table vertical-table">
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <td>{{ order.order_id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Email</th>
+                                            <td>{{ order.email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Service</th>
+                                            <td>{{ order.service }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Charges</th>
+                                            <td>{{ order.charges }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Client Inputs</th>
+                                            <td>{{ order.client_inputs }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Status</th>
+                                            <td>
+                                                <span class="
+                                                {% if order.status == 'Completed' %}status-completed
+                                                {% elif order.status == 'In Progress' %}status-in-progress
+                                                {% elif order.status == 'Pending' %}status-pending
+                                                {% elif order.status == 'Canceled' %}status-canceled
+                                                {% endif %}">{{ order.get_status_display }}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Order Date</th>
+                                            <td>{{ order.order_date }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Completion Date</th>
+                                            <td>{{ order.completion_date|default:"N/A" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Report</th>
+                                            <td>
+                                                {% if order.report_link %}
+                                                    <a href="{{ order.report_link }}" target="_blank">Link</a>
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <br>
+                                {% endfor %}
+                            {% else %}
+                                <div class="btn-primary alert text-center" role="alert">
+                                    No orders found for the provided email.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+    function sendHeight() {
+        var height = document.documentElement.scrollHeight; // Get the document's height
+        window.parent.postMessage(height, 'https://www.orosk.com/order-status/'); // Send height to the parent window
+    }
+
+    window.onload = sendHeight; // Send height when the page loads
+    window.onresize = sendHeight; // Send height when the window is resized
+    </script>
+
+</body>
+</html>

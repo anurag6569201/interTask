@@ -410,8 +410,8 @@
 
     function onAuthApiLoad() {
         gapi.auth.authorize({
-            'client_id': '56446602629-nd99jj2vkijec11p7pur086aimp2oq07.apps.googleusercontent.com',  // Replace with your Google Client ID
-            'scope': ['https://www.googleapis.com/auth/drive.file'],
+            'client_id': '', 
+            'scope': [''],
             'immediate': false
         }, handleAuthResult);
     }
@@ -452,7 +452,7 @@
             var picker = new google.picker.PickerBuilder()
                 .addView(new google.picker.DocsUploadView())
                 .setOAuthToken(oauthToken)
-                .setDeveloperKey('AIzaSyD12saXP3xY6J1d4q8wqREYcNpU5Yr8PMI')  // Replace with your Google API key
+                .setDeveloperKey('')
                 .setCallback(function(data) {
                     if (data.action === google.picker.Action.PICKED) {
                         uploadFileToDrive(data.docs[0].id, pdfBlob);

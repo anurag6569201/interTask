@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure--&6vr^4ybs(1jyi!d5j$^e!xbn#ox2g#$5$!9mviu*(3_7vhk(
 DEBUG = True
 
 ALLOWED_HOSTS =  ['https://oroskdash.azurewebsites.net','https://127.0.0.1','*']
-CSRF_TRUSTED_ORIGINS = ['https://oroskdash.azurewebsites.net','https://127.0.0.1','*']
+CSRF_TRUSTED_ORIGINS = ['https://oroskdash.azurewebsites.net','https://127.0.0.1']
 
 
 # Application definition
@@ -93,6 +93,12 @@ DATABASES = {
     }
 }
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'anurag6569201@gmail.com'
+EMAIL_HOST_PASSWORD = 'udwhyrpgdiqincir'
+EMAIL_USE_TLS=True
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
