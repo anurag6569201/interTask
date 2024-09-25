@@ -30,7 +30,6 @@ def invoice(request):
 
 # Creation of invoices
 @login_required(login_url='authentication:login')
-
 def create_invoice(request):
     ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=10, can_delete=True)
     if request.method == 'POST':

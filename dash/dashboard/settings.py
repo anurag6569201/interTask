@@ -34,7 +34,7 @@ CSRF_TRUSTED_ORIGINS = ['https://oroskdash.azurewebsites.net','https://127.0.0.1
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    # 'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -92,11 +92,10 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
 EMAIL_HOST_USER = 'anurag6569201@gmail.com'
-EMAIL_HOST_PASSWORD = 'udwhyrpgdiqincir'
+EMAIL_HOST_PASSWORD = 'ihasreqxrrtzmrc'
 EMAIL_USE_TLS=True
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 
