@@ -250,7 +250,7 @@
                 </tr>
                 <tr>
                     <td>Service Source : {{ invoice.company.website }}</td>
-                    <td>Payment ID : {{ invoice.company.payment_id }}</td>
+                    <td>Payment ID : {{ invoice.payment_id }}</td>
                 </tr>
                 <tr>
                     <td colspan="2" class="bb" style="text-align: center">
@@ -264,7 +264,7 @@
         <table class="table-container" style="border-top: none; border-bottom: none">
             <tbody>
                 <tr>
-                    <td class="wide50 ub">Customer Name : {{ invoice.customer_name }}</td>
+                    <td class="wide50 ub">Customer Name : {{ invoice.customer_name }} (GST:{{ invoice.clint_gst }})</td>
                     <td class="wide50 ub">
                         Customer Email : {{ invoice.customer_email }}
                     </td>
@@ -284,19 +284,23 @@
         <table class="table-container">
             <tbody>
                 <tr>
-                    <td class="wide15">SR. No.</td>
-                    <td class="wide20">Service Name</td>
-                    <td class="wide15">Qty</td>
-                    <td>Price/Service</td>
+                    <td class="wide10">SR. No.</td>
+                    <td class="wide30">Service Name</td>
+                    <td class="wide10">Category</td>
+                    <td>Qty</td>
+                    <td class="wide10">Tax</td>
+                    <td class="wide10">Price/Service</td>
                     <td class="wide20">Amount Incl Tax</td>
                 </tr>
-                {% for item in items %}
+                {% for item_data in items_with_tax %}
                 <tr>
                     <td style="text-align: right">{{ forloop.counter }}</td>
-                    <td style="text-align: right">{{ item.item_name}}</td>
-                    <td style="text-align: right">{{ item.quantity }}</td>
-                    <td>{{ item.price_per_unit }}</td>
-                    <td style="text-align: right">{{ item.price_incl_tax }}</td>
+                    <td style="text-align: right">{{ item_data.item.item_name }}</td>
+                    <td style="text-align: right">{{ item_data.item.item_number }}</td>
+                    <td style="text-align: right">{{ item_data.item.quantity }}</td>
+                    <td style="text-align: right">{{ item_data.tax_amount }}</td> 
+                    <td style="text-align: right">{{ item_data.item.price_per_unit }}</td>
+                    <td style="text-align: right">{{ item_data.item.price_incl_tax }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -308,7 +312,7 @@
                 <tr>
                     <td rowspan="3" class="wide10 rb ub"></td>
                     <td rowspan="3" class="wide40 lb ub"></td>
-                    <td style="text-align: right" class="ub">Total Amount</td>
+                    <td style="text-align: right" class="ub wide25">Total Amount</td>
                     <td style="text-align: right" class="wide20 ub">
                         {{ invoice.total_taxable_amount }}
                     </td>

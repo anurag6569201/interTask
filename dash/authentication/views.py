@@ -32,7 +32,7 @@ def login_view(request):
             else:
                 messages.warning(request, "Failed to send OTP. You can use your secret number to login.")
                 request.session['user_id'] = user.id  # Store user ID in session
-                return redirect('authentication:verify_secret_number')
+                return redirect('authentication:verify_otp')
                 
             return redirect('authentication:verify_otp')
         else:

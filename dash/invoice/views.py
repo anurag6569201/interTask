@@ -31,7 +31,7 @@ def invoice(request):
 # Creation of invoices
 @login_required(login_url='authentication:login')
 def create_invoice(request):
-    ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=10, can_delete=True)
+    ItemFormSet = inlineformset_factory(Invoice, Item, form=ItemForm, extra=1, can_delete=True)
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
         formset = ItemFormSet(request.POST)
@@ -147,6 +147,15 @@ def view_invoice(request,pk):
     invoice = get_object_or_404(Invoice, id=pk)
     items = invoice.items.all()
 
+    items_with_tax = []
+    for item in items:
+        tax_amount = item.price_incl_tax - (item.quantity * item.price_per_unit)
+        item_with_tax = {
+            'item': item,
+            'tax_amount': tax_amount,
+        }
+        items_with_tax.append(item_with_tax)
+
     p = inflect.engine()
     number=invoice.total
     total_in_word=p.number_to_words(number)
@@ -157,6 +166,7 @@ def view_invoice(request,pk):
         'items': items,
         'total_in_word':total_in_word,
         'bank_details':bank_details,
+        'items_with_tax': items_with_tax,
     }
     return render(request, 'invoice/print_invoice.html', context)
 
