@@ -6,7 +6,7 @@
         <div class="sidebar-wrapper">
             <ul class="nav">
                 <li class="{% if request.path == '/' %}active{% endif %}">
-                    <a href="/">
+                    <a href="{% url 'home:home' %}">
                         <i class="tim-icons icon-chart-pie-36"></i>
                         <p class="sidebar-items">Dashboard</p>
                     </a>

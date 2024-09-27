@@ -8,5 +8,6 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/update-email/', views.update_email_view, name='update_email'),
     path('profile/change-password/', views.change_password_view, name='change_password'),
+    path('add-optional-email/', views.add_optional_email_view, name='add_optional_email'),
     re_path(r'^page/(?P<page_slug>[\w-]+)/$', views.pages, name='pages'),
 ]

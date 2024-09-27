@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth import logout
 from .utils import generate_otp, send_otp_email
 from django.utils import timezone
-from .models import OTP
+from .models import OTP, OptionalEmail
 
 User = get_user_model()
 
@@ -19,27 +19,36 @@ def login_view(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
+        # Authenticate using the primary email
         user = authenticate(request, email=email, password=password)
-        if user is not None:
-            # Generate OTP
-            otp_code = generate_otp()
-            OTP.objects.create(user=user, otp_code=otp_code)
-            email_sent = send_otp_email(user.email, otp_code)
-            
-            if email_sent:
-                request.session['user_id'] = user.id
-                messages.info(request, "OTP sent to your email")
-            else:
-                messages.warning(request, "Failed to send OTP. You can use your secret number to login.")
-                request.session['user_id'] = user.id  # Store user ID in session
-                return redirect('authentication:verify_otp')
-                
-            return redirect('authentication:verify_otp')
-        else:
-            messages.warning(request, "Invalid email or password")
+        
+        if user is None:
+            # If primary email authentication fails, check optional emails
+            try:
+                optional_email = OptionalEmail.objects.get(email=email)
+                user = optional_email.user
+                # Check if the password is correct
+                if user.check_password(password):
+                    # Generate OTP
+                    otp_code = generate_otp()
+                    OTP.objects.create(user=user, otp_code=otp_code)
+                    email_sent = send_otp_email(user.email, otp_code)
+                    
+                    if email_sent:
+                        request.session['user_id'] = user.id
+                        messages.info(request, "OTP sent to your email")
+                    else:
+                        messages.warning(request, "Failed to send OTP. You can use your secret number to login.")
+                        request.session['user_id'] = user.id  # Store user ID in session
+                        return redirect('authentication:verify_otp')
+                        
+                    return redirect('authentication:verify_otp')
+                else:
+                    messages.warning(request, "Invalid email or password")
+            except OptionalEmail.DoesNotExist:
+                messages.warning(request, "Invalid email or password")
 
     return render(request, "accounts/login.html")
-
 
 
 def logout_view(request):

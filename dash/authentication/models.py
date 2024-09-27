@@ -44,3 +44,11 @@ class OTP(models.Model):
     def is_valid(self):
         expiration_time = self.created_at + timedelta(minutes=10)
         return timezone.now() < expiration_time
+    
+
+class OptionalEmail(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.email

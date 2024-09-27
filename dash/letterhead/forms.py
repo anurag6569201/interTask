@@ -7,14 +7,34 @@ class LetterForm(forms.ModelForm):
     offer_letter = forms.CharField(widget=CKEditor5Widget(config_name='extends'))
     footer_left_text = forms.CharField(widget=CKEditor5Widget(config_name='extends'))
     footer_right_text = forms.CharField(widget=CKEditor5Widget(config_name='extends'))
+    
+    # Background color fields
+    top_background_color = forms.CharField(
+        max_length=7, 
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#FFFFFF'})
+    )
+    middle_background_color = forms.CharField(
+        max_length=7, 
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#FFFFFF'})
+    )
+    bottom_background_color = forms.CharField(
+        max_length=7, 
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#FFFFFF'})
+    )
 
     class Meta:
         model = Letter
         fields = [
             'letter_logo', 
             'top_background_image', 
+            'top_background_color',
             'middle_background_image', 
+            'middle_background_color',
             'bottom_background_image',
+            'bottom_background_color',
             'top_right_text',
             'offer_letter',
             'footer_left_text', 

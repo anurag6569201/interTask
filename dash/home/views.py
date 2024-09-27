@@ -4,6 +4,7 @@ from django.template import loader, TemplateDoesNotExist
 from django.urls import reverse
 from django.shortcuts import render,redirect
 import logging
+from authentication.models import OptionalEmail
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,8 @@ def pages(request):
 
 
 def profile(request):
-    return render(request, 'home/profile.html')
+    optional_emails = OptionalEmail.objects.filter(user=request.user)
+    return render(request, 'home/profile.html',{'optional_emails': optional_emails})
 
 
 from django.core.mail import send_mail
@@ -59,21 +61,14 @@ def update_email_view(request):
     return render(request, 'home/profile.html')
 
 
-
 @login_required
 def change_password_view(request):
     if request.method == "POST":
-        current_password = request.POST.get("current_password")
         secret_number = request.POST.get("secret_number")
         new_password = request.POST.get("new_password")
         confirm_password = request.POST.get("confirm_password")
 
         user = request.user
-
-        # Check if the current password is correct
-        if not user.check_password(current_password):
-            messages.error(request, "Current password is incorrect.")
-            return redirect('home:profile')
 
         # Check if the secret number is correct
         if user.secret_number != secret_number:
@@ -89,6 +84,24 @@ def change_password_view(request):
         user.set_password(new_password)
         user.save()
         messages.success(request, "Password changed successfully!")
+        return redirect('home:profile')
+
+    return render(request, 'home/profile.html')
+
+
+@login_required
+def add_optional_email_view(request):
+    if request.method == "POST":
+        optional_email = request.POST.get("optional_email")
+
+        # Check if the email already exists
+        if OptionalEmail.objects.filter(user=request.user, email=optional_email).exists():
+            messages.error(request, "This email is already added.")
+            return redirect('home:profile')
+
+        # Create a new OptionalEmail entry
+        OptionalEmail.objects.create(user=request.user, email=optional_email)
+        messages.success(request, "Optional email added successfully!")
         return redirect('home:profile')
 
     return render(request, 'home/profile.html')
