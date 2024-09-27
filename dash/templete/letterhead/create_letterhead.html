@@ -1,0 +1,166 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}Create Letterhead{% endblock %}
+
+{% block stylesheets %}
+<link href="{% static 'assets/django_ckeditor_5/dist/styles.css' %}" type="text/css" media="all" rel="stylesheet">
+<style>
+    /* A4 Paper Layout */
+    .letterhead-container {
+        width: 21cm;
+        height: 29.7cm;
+        padding: 2cm;
+        margin: 0 auto;
+        background-color: white;
+        position: relative;
+        border: 1px solid #ccc;
+    }
+
+    .letterhead-section {
+        width: 100%;
+    }
+
+    /* Top Section Styling */
+    .top-section {
+        position: relative;
+        height: 5cm;
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .company-logo {
+        position: absolute;
+        top: 0;
+        left: 0;
+        max-width: 6cm;
+        max-height: 3cm;
+    }
+
+    .top-right-text {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40%;
+        text-align: right;
+        padding: 1cm;
+    }
+
+    /* Middle Section Styling */
+    .middle-section {
+        min-height: 15cm;
+        padding: 2cm 0;
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .offer-letter-content {
+        padding: 1cm;
+        background-color: rgba(255, 255, 255, 0.8);
+        margin: auto;
+    }
+
+    /* Bottom Section Styling */
+    .bottom-section {
+        position: relative;
+        height: 5cm;
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .footer-left-text,
+    .footer-right-text {
+        position: absolute;
+        bottom: 0;
+        padding: 1cm;
+    }
+
+    .footer-left-text {
+        left: 0;
+        width: 45%;
+        text-align: left;
+    }
+
+    .footer-right-text {
+        right: 0;
+        width: 45%;
+        text-align: right;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h2>CREATE LETTERHEAD</h2>
+
+            {% if messages %}
+            <div class="alert-container alert alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(function () {
+                    const alertContainer = document.querySelector('.alert-container');
+                    if (alertContainer) {
+                        alertContainer.style.transition = "opacity 0.5s";
+                        alertContainer.style.opacity = 0;
+                        setTimeout(function () {
+                            alertContainer.remove();
+                        }, 500);
+                    }
+                }, 1000);
+            </script>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ letterhead_form.as_p }}
+                <button type="submit">Submit</button>
+            </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Initialize CKEditor for the textareas
+                    const editorConfigs = ['#id_top_right_text', '#id_offer_letter', '#id_footer_left_text', '#id_footer_right_text'];
+
+                    editorConfigs.forEach(selector => {
+                        ClassicEditor
+                            .create(document.querySelector(selector))
+                            .then(editor => {
+                                // Replace the hidden textarea with the editor
+                                const textarea = document.querySelector(selector);
+                                textarea.style.display = 'none';  // Ensure it's visible
+                                textarea.removeAttribute('required');  // Temporarily remove required
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    });
+                });
+            </script>
+
+        </div>
+    </div>
+</div>
+</div>
+<script src="{% static 'assets/django_ckeditor_5/dist/bundle.js' %}"></script>
+{% endblock %}
+
+
+
+
+<div class="ck-editor-container">
+    <textarea name="top_right_text" class="django_ckeditor_5" id="id_top_right_text" data-processed="1"
+        style="display: none;">&lt;p&gt;ewdwwed&lt;/p&gt;</textarea>
+    <div class="ck ck-reset ck-editor ck-rounded-corners" role="application" dir="ltr" lang="en"
+        aria-labelledby="ck-editor__label_e4a10d454829db2ad1305d07071dcc4e5"><label class="ck ck-label ck-voice-label"
+            id="ck-editor__label_e4a10d454829db2ad1305d07071dcc4e5">Rich Text Editor</label>
+        <div class="ck ck-editor__top ck-reset_all" role="presentation">
+
+        </div>
+        <div class="ck ck-editor__main" role="presentation">
+
+        </div>
+    </div>
+</div>

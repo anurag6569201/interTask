@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader, TemplateDoesNotExist
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,3 +36,59 @@ def pages(request):
         logger.error(f"An error occurred: {e}", exc_info=True)
         html_template = loader.get_template('home/page-500.html')
         return HttpResponse(html_template.render(context, request))
+
+
+def profile(request):
+    return render(request, 'home/profile.html')
+
+
+from django.core.mail import send_mail
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+@login_required
+def update_email_view(request):
+    if request.method == "POST":
+        new_email = request.POST.get("email")
+        request.user.email = new_email
+        request.user.save()
+        messages.success(request, "Email updated successfully!")
+        return redirect('home:profile')  # Redirect to profile view
+
+    return render(request, 'home/profile.html')
+
+
+
+@login_required
+def change_password_view(request):
+    if request.method == "POST":
+        current_password = request.POST.get("current_password")
+        secret_number = request.POST.get("secret_number")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        user = request.user
+
+        # Check if the current password is correct
+        if not user.check_password(current_password):
+            messages.error(request, "Current password is incorrect.")
+            return redirect('home:profile')
+
+        # Check if the secret number is correct
+        if user.secret_number != secret_number:
+            messages.error(request, "Invalid secret number.")
+            return redirect('home:profile')
+
+        # Check if new passwords match
+        if new_password != confirm_password:
+            messages.error(request, "New passwords do not match.")
+            return redirect('home:profile')
+
+        # Change the password
+        user.set_password(new_password)
+        user.save()
+        messages.success(request, "Password changed successfully!")
+        return redirect('home:profile')
+
+    return render(request, 'home/profile.html')

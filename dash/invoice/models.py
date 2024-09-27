@@ -17,6 +17,11 @@ class Company(models.Model):
         return self.name
     
 class Invoice(models.Model):
+    SERVICE_TYPES=[
+        ('Product', 'Product'),
+        ('Service', 'Service'),
+    ]
+
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=100,null=True,blank=True,default="N/A")
     invoice_date = models.DateField(null=True,blank=True,default="N/A")
@@ -32,6 +37,7 @@ class Invoice(models.Model):
     customer_address = models.TextField(null=True,blank=True,default="N/A")
     payment_id = models.CharField(max_length=100,default="N/A")
     clint_gst = models.CharField(max_length=100, blank=True,null=True,default="N/A")
+    service_type = models.CharField(max_length=20,choices=SERVICE_TYPES,default='Product')
 
     def __str__(self):
         return f"Invoice {self.invoice_number}"

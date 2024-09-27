@@ -10,9 +10,10 @@ class InvoiceForm(forms.ModelForm):
         model = Invoice
         fields = ['company', 'invoice_number', 'invoice_date', 'transaction_date', 'due_date',
                   'total_taxable_amount', 'tax_rate', 'tax_amount', 'total',
-                  'customer_name', 'customer_email', 'customer_phone', 'customer_address','payment_id','clint_gst']
+                  'customer_name', 'customer_email', 'customer_phone', 'customer_address','payment_id','clint_gst','service_type']
         widgets = {
             'company': forms.Select(attrs={'class': 'form-control'}),
+            'service_type': forms.Select(attrs={'class': 'form-control'}),
             'invoice_number': forms.TextInput(attrs={'class': 'form-control'}),
             'total_taxable_amount': forms.NumberInput(attrs={'class': 'form-control'}),
             'tax_rate': forms.NumberInput(attrs={'class': 'form-control'}),

@@ -1,0 +1,229 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+{% block stylesheets %}
+<!-- Add DataTables CSS and JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h2>LETTERHEAD</h2>
+            
+            {% if messages %}
+                <div class="alert-container alert alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        const alertContainer = document.querySelector('.alert-container');
+                        if (alertContainer) {
+                            alertContainer.style.transition = "opacity 0.5s";
+                            alertContainer.style.opacity = 0;
+                            setTimeout(function() {
+                                alertContainer.remove();
+                            }, 500);
+                        }
+                    }, 1000); 
+                </script>
+            {% endif %}
+        
+
+            <div class="d-flex" style="align-items: center;gap: 10px;">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        Letterhead
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="{% url 'letterhead:create_letterhead' 0 %}">Create letterhead</a>
+                    </div>
+                </div>
+    
+                <!-- Multi-Delete Button -->
+                <div>
+                    <button id="bulk-delete" class="btn btn-danger">Delete Selected</button>
+                </div>
+
+            </div>
+
+            <!-- Search input -->
+            <div class="mt-3 mb-3">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search Invoices">
+            </div>
+
+            <br>
+            <div class="table-responsive">
+                <table class="table" id="letterHeadTable">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all"></th>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Logo</th>
+                            <th class="text-center">Letterhead Preview</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for letter in letterheads %}
+                        <tr>
+                            <td><input type="checkbox" class="invoice-checkbox" value="{{ letter.id }}"></td>
+                            <td class="text-center">{{ forloop.counter }}</td>
+                            <td class="text-center">
+                                <img style="height: 70px;" src="{{ letter.letter_logo.url }}" alt="Letterhead Logo">
+                            </td>
+                            
+                            <td class="text-center" id="truncate_text">
+                                <div class="eclipse-container" style="width: 200px;height: 40px;overflow: hidden;display: flex;align-items: first baseline;justify-content: center;margin-top: 10px;margin: auto;">
+                                    <div class="visible-content">
+                                        {{ letter.offer_letter|safe }}
+                                    </div>
+                                </div>
+                            </td>
+                        
+                            
+                            <td class="text-center">
+                                <!-- Edit Button -->
+                                <a href="{% url 'letterhead:create_letterhead' letter.id %}" class="btn btn-primary btn-sm">
+                                    Edit
+                                </a>
+                
+                                <!-- Preview Button -->
+                                <a href="{% url 'letterhead:preview_letterhead' letter.id %}" class="btn btn-info btn-sm">
+                                    Preview
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No Letterheads found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Script for bulk delete functionality -->
+                <script>
+                    // Select or deselect all checkboxes
+                    document.getElementById('select-all').addEventListener('click', function() {
+                        const checkboxes = document.querySelectorAll('.invoice-checkbox');
+                        checkboxes.forEach((checkbox) => {
+                            checkbox.checked = this.checked;
+                        });
+                    });
+
+                    // Bulk delete action
+                    document.getElementById('bulk-delete').addEventListener('click', function() {
+                        const selectedIds = Array.from(document.querySelectorAll('.invoice-checkbox:checked')).map(checkbox => checkbox.value);
+                        if (selectedIds.length === 0) {
+                            alert('No letterheads selected.');
+                            return;
+                        }
+
+                        if (confirm('Are you sure you want to delete the selected letterheads?')) {
+                            fetch("{% url 'letterhead:bulk_delete_letterhead' %}", {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: new URLSearchParams({
+                                    'ids[]': selectedIds  // Ensure this is sent as an array
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    location.reload();  // Refresh the page after successful deletion
+                                } else {
+                                    alert('Failed to delete letterheads.');
+                                }
+                            });
+                        }
+                    });
+                </script>                
+            </div>
+        </div>
+    </div>
+</div>
+<script
+src="https://code.jquery.com/jquery-3.7.1.min.js"
+integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        var table = $('#letterHeadTable').DataTable({
+            "order": [[ 1, "asc" ]],  
+            "paging": true,
+            "searching": true,
+            "columnDefs": [
+                { "orderable": false, "targets": 0 } 
+            ]
+        });
+
+        $('#searchInput').on('keyup', function() {
+            table.search(this.value).draw();
+        });
+
+        $('#selectAll').on('click', function() {
+            var isChecked = this.checked;
+            $('.letter-checkbox').each(function() {
+                $(this).prop('checked', isChecked);
+            });
+            toggleDeleteButton();
+        });
+
+        $(document).on('change', '.letter-checkbox', function() {
+            if ($('.letter-checkbox:checked').length == $('.letter-checkbox').length) {
+                $('#selectAll').prop('checked', true);
+            } else {
+                $('#selectAll').prop('checked', false);
+            }
+            toggleDeleteButton();
+        });
+
+        function toggleDeleteButton() {
+            if ($('.letter-checkbox:checked').length > 0) {
+                $('#deleteSelected').prop('disabled', false);
+            } else {
+                $('#deleteSelected').prop('disabled', true);
+            }
+        }
+
+        $('#deleteSelected').on('click', function() {
+            var selectedIds = [];
+            $('.letter-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length > 0 && confirm("Are you sure you want to delete the selected letters?")) {
+                $.ajax({
+                    url: "{% url 'letterhead:bulk_delete_letterhead' %}", 
+                    method: "POST",
+                    data: {
+                        'ids': selectedIds,  
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                           
+                            $('.letter-checkbox:checked').each(function() {
+                                var row = $(this).closest('tr');
+                                $(row).fadeOut(800, function() {
+                                    table.row(row).remove().draw(false);  
+                                });
+                            });
+                        } else {
+                            alert('Error deleting letters');
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

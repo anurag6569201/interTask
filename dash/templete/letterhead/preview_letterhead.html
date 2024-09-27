@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Letterhead</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+    
+        body {
+            font-family: Arial, sans-serif;
+            width: 210mm;
+            /* A4 page width */
+            height: 297mm;
+            /* A4 page height */
+            margin: 0 auto;
+            /* Center the content */
+            padding: 10mm;
+            /* Add some padding inside the page */
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+        }
+    
+
+        
+        #save-to-drive,
+        #download-pdf{
+            border: 1px solid black;
+            background-color: rgb(245, 245, 245);
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin: 10px;
+        }
+        #save-to-drive:hover,
+        #download-pdf:hover{
+            background-color: rgb(235, 235, 235);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            transition: transform 0.3s ease;
+            transform: translateY(-3px);
+        }
+        .bottom-container,
+        .top-container{
+            display: flex;
+            align-items:flex-start;
+            justify-content: space-between;
+        }
+        .middle-container img{
+            height: 80px !important;
+            width: auto !important;
+        }
+        .top-container, .middle-container, .bottom-container {
+        position: relative;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+    
+    .top-container::before, 
+    .bottom-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 80%, rgba(255, 255, 255, 1));
+        z-index: 1;
+    }
+    
+    .top-container, .middle-container, .bottom-container p, 
+    .bottom-left-text, .bottom-right-text {
+        position: relative;
+        z-index: 2; /* Ensure the text is above the gradient */
+    }
+    .top-container, .middle-container, .bottom-container {
+        position: relative;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        box-shadow: inset 0px 0px 20px 15px rgb(255, 255, 255); /* Soft fade effect */
+    }
+    </style>
+</head>
+<body>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
+
+<div style="display: flex; align-items: center; justify-content: center;">
+    <button id="download-pdf">Download PDF</button>
+    <button id="save-to-drive">Save to Google Drive</button>
+</div>
+
+<div style="padding: 25px" class="pdf_invoice" id="pdf-content">
+    <div class="top-container" 
+         {% if letterhead.top_background_image and letterhead.top_background_image.url %}
+         style="background-image: url('{{letterhead.top_background_image.url}}');"
+         {% endif %}>
+        <div class="left-top-image">
+            {% if letterhead.letter_logo and letterhead.letter_logo.url %}
+            <img src="{{letterhead.letter_logo.url}}" alt="">
+            {% endif %}
+        </div>
+        <div class="right-top-text">
+            <p>{{letterhead.top_right_text|safe}}</p>
+        </div>
+    </div>
+    
+    <div class="middle-container" 
+         {% if letterhead.middle_background_image and letterhead.middle_background_image.url %}
+         style="background-image: url('{{letterhead.middle_background_image.url}}');"
+         {% endif %}>
+        <p>{{letterhead.offer_letter|safe}}</p>
+    </div>
+
+    <div class="bottom-container"  
+         {% if letterhead.bottom_background_image and letterhead.bottom_background_image.url %}
+         style="background-image: url('{{letterhead.bottom_background_image.url}}');"
+         {% endif %}>
+        <div class="bottom-left-text">
+            <p>{{letterhead.footer_left_text|safe}}</p>
+        </div>
+        <div class="bottom-right-text">
+            <p>{{letterhead.footer_right_text|safe}}</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("download-pdf").addEventListener("click", function () {
+        const invoiceElement = document.querySelector(".pdf_invoice");
+
+        html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "mm", "a4");
+
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+
+            const imgWidth = pageWidth;
+            const imgHeight = (canvasHeight * imgWidth) / canvasWidth;
+
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save('letterhead.pdf');
+        });
+    });
+</script>
+
+    
+</body>
+</html>

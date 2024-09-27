@@ -1,0 +1,98 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %} Dashboard {% endblock %} 
+{% block stylesheets %}
+<!-- Add DataTables CSS and JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+<style>
+    .profile_photo{
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h2>PROFILE</h2>
+            
+            {% if messages %}
+                <div class="alert-container alert alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        const alertContainer = document.querySelector('.alert-container');
+                        if (alertContainer) {
+                            alertContainer.style.transition = "opacity 0.5s";
+                            alertContainer.style.opacity = 0;
+                            setTimeout(function() {
+                                alertContainer.remove();
+                            }, 500);
+                        }
+                    }, 1000); 
+                </script>
+            {% endif %}
+            <div class="col-md-12">
+                <div class="row" style="display: flex;align-items: center;justify-content: center;">
+                    <img class="profile_photo" src="{% static 'assets/img/anime3.png' %}" alt="Profile Photo">
+                </div>
+                <div class="col-md-12">
+                    <div class="row" style="align-items: center;justify-content: center;">
+                        <div class="col-md-8">
+                            <div class="card forgetting_password mt-3">
+                                <div class="card-body">
+                                    <h4 class="card-title text-center">Update Email</h4>
+                                    <form method="POST" action="{% url 'home:update_email' %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="email">New Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-block">Update Email</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="card forgetting_password mt-3">
+                                <div class="card-body">
+                                    <h4 class="card-title text-center">Change Password</h4>
+                                    <form method="POST" action="{% url 'home:change_password' %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="current_password">Current Password</label>
+                                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="secret_number">Secret Number</label>
+                                            <input type="text" class="form-control" id="secret_number" name="secret_number" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="new_password">New Password</label>
+                                            <input type="password" class="form-control" id="new_password" name="new_password" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirm_password">Confirm Password</label>
+                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-block">Change Password</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

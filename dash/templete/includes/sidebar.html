@@ -22,7 +22,13 @@
                         <i class="tim-icons icon-single-02"></i>
                         <p class="sidebar-items">status</p>
                     </a>
-                </li>             
+                </li>   
+                <li class="{% if '/letterhead/' in request.path %}active{% endif %}">
+                    <a href="{% url 'letterhead:letterhead' %}">
+                        <i class="tim-icons icon-single-copy-04"></i>
+                        <p class="sidebar-items">Letterhead</p>
+                    </a>
+                </li>                
                 <li>
                     <a href="{% url 'authentication:logout' %}">
                         <i class="tim-icons icon-button-power"></i>

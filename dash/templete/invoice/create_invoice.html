@@ -34,10 +34,7 @@
                     <div class="col-md-6 col-12">
                         <div class="form-group">
                             <label for="id_company">Company:</label>
-                            <select class="form-control" name="company" id="id_company">
-                                <option value="">---------</option>
-                                <option value="1" selected>OROSK Network Private Limited</option>
-                            </select>
+                            {{ form.company }}
                         </div>
                         <div class="form-group">
                             <label for="id_invoice_date">Invoice date:</label>
@@ -54,6 +51,10 @@
                         <div class="form-group">
                             <label for="id_payment_id">Payment ID:</label>
                             <input type="text" class="form-control" name="payment_id" id="id_payment_id">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_service_type">Service Type:</label>
+                            {{ form.service_type }}
                         </div>
                     </div>
 
@@ -105,6 +106,7 @@
                             </tr>
                         </thead>
                         <tbody id="invoice-items">
+                            <tr></tr>
                             {{ formset.management_form }}
                             {% for form in formset %}
                             <tr class="item-row" data-form-index="{{ forloop.counter0 }}">
@@ -159,7 +161,6 @@
                 <button type="submit" class="btn btn-primary">Save Invoice</button>
             </form>
 
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script>
                 $(document).ready(function () {

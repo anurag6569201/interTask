@@ -80,6 +80,7 @@
     .bank-details td {
         padding: 8px;
         border: 1px solid black;
+        text-align: center;
     }
 
     .heading_name {
@@ -95,6 +96,7 @@
 
     .table-container .wide10 {
         width: 10%;
+        text-align:center;
     }
 
     .table-container .wide15 {
@@ -103,10 +105,12 @@
 
     .table-container .wide20 {
         width: 20%;
+        text-align:center;
     }
 
     .table-container .wide30 {
         width: 30%;
+        text-align:center;
     }
 
     .table-container .wide40 {
@@ -242,7 +246,7 @@
             <tbody>
                 <tr>
                     <td class="wide50">Invoice Date : {{ invoice.invoice_date }}</td>
-                    <td class="wide50">Invoice No. : {{ invoice.invoice_number }}</td>
+                    <td class="wide50">Invoice No. : <b>{{ invoice.invoice_number }}</b></td>
                 </tr>
                 <tr>
                     <td>Transaction Date : {{ invoice.transaction_date }}</td>
@@ -253,9 +257,9 @@
                     <td>Payment ID : {{ invoice.payment_id }}</td>
                 </tr>
                 <tr>
-                    <td colspan="2" class="bb" style="text-align: center">
-                        Customer Details
-                    </td>
+                    <th colspan="2" class="bb" style="text-align: center">
+                        <b>Customer Details</b>
+                    </th>
                 </tr>
             </tbody>
         </table>
@@ -271,10 +275,19 @@
                 </tr>
                 <tr>
                     <td class="wide50 bb">
-                        Customer Phone : {{ invoice.customer_phone}}
+                        Customer Phone : +{{ invoice.customer_phone}}
                     </td>
                     <td class="wide50 bb">
                         Customer Address : {{ invoice.customer_address }}
+                    </td>
+                    
+                </tr>
+                 <tr>
+                    <td class="wide50 bb">
+                        Service Category : {{ invoice.service_type }}
+                    </td>
+                    <td class="wide50 bb">
+                        GST Number : {{ invoice.clint_gst }}
                     </td>
                 </tr>
             </tbody>
@@ -284,23 +297,23 @@
         <table class="table-container">
             <tbody>
                 <tr>
-                    <td class="wide10">SR. No.</td>
-                    <td class="wide30">Service Name</td>
-                    <td class="wide10">Category</td>
-                    <td>Qty</td>
-                    <td class="wide10">Tax</td>
-                    <td class="wide10">Price/Service</td>
-                    <td class="wide20">Amount Incl Tax</td>
+                    <th class="wide10">SR.No.</th>
+                    <th class="wide30">Service Name</th>
+                    <th class="wide10">Category</th>
+                    <th align="left">Qty</th>
+                    <th class="wide10">Tax</th>
+                    <th class="wide10">Cost</th>
+                    <th class="wide20">Amount Incl Tax</th>
                 </tr>
                 {% for item_data in items_with_tax %}
                 <tr>
-                    <td style="text-align: right">{{ forloop.counter }}</td>
-                    <td style="text-align: right">{{ item_data.item.item_name }}</td>
-                    <td style="text-align: right">{{ item_data.item.item_number }}</td>
-                    <td style="text-align: right">{{ item_data.item.quantity }}</td>
-                    <td style="text-align: right">{{ item_data.tax_amount }}</td> 
-                    <td style="text-align: right">{{ item_data.item.price_per_unit }}</td>
-                    <td style="text-align: right">{{ item_data.item.price_incl_tax }}</td>
+                    <td style="text-align: center">{{ forloop.counter }}</td>
+                    <td style="text-align: center">{{ item_data.item.item_name }}</td>
+                    <td style="text-align: center">{{ item_data.item.item_number }}</td>
+                    <td style="text-align: center">{{ item_data.item.quantity }}</td>
+                    <td style="text-align: center">Rs.{{ item_data.tax_amount }}</td> 
+                    <td style="text-align: center">Rs.{{ item_data.item.price_per_unit }}</td>
+                    <td style="text-align: center">Rs.{{ item_data.item.price_incl_tax }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -314,20 +327,20 @@
                     <td rowspan="3" class="wide40 lb ub"></td>
                     <td style="text-align: right" class="ub wide25">Total Amount</td>
                     <td style="text-align: right" class="wide20 ub">
-                        {{ invoice.total_taxable_amount }}
+                        Rs.{{ invoice.total_taxable_amount }}
                     </td>
                 </tr>
                 <tr>
                     <td style="text-align: right">IGST @18%</td>
-                    <td style="text-align: right">{{ invoice.tax_amount }}</td>
+                    <td style="text-align: right">Rs.{{ invoice.tax_amount }}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: right">Grand Total</td>
-                    <td style="text-align: right">{{ invoice.total }}</td>
+                    <td style="text-align: right"><b>Grand Total</b></td>
+                    <td style="text-align: right"><b>Rs.{{ invoice.total }}</b></td>
                 </tr>
                 <tr>
-                    <td class="wide15 bb">In Words</td>
-                    <td colspan="3" class="bb">{{ total_in_word }} only.</td>
+                    <td class="wide15 bb">In words</td>
+                    <td colspan="3" class="bb">{{ total_in_word }} rupees only.</td>
                 </tr>
             </tbody>
         </table>
@@ -344,7 +357,7 @@
                 <tbody>
                     <tr>
                         <td>
-                            Please Pay the QR/UPI/PAYMENT ID transfer in favour of '{{invoice.company.name }}'
+                            Payment Method : UPI/Netbanking/Credit or Debit Card/NEFT - You can transfer in favour of <b> '{{invoice.company.name }}'</b>
                         </td>
                         <td rowspan="5" class="company_logo00 wide30">
                             <img style="width: 150px" src="{{ bank_details.sign_seal_image.url }}" alt="Seal Image"
@@ -356,8 +369,9 @@
                             <span style="float: left">Bank Name: <b>{{ bank_details.bank_name }}</b><br />Account No.
                                 : <b>{{ bank_details.account_number }}</b><br />GST No. :
                                 <b>{{ invoice.company.gst }}</b><br />IFSC Code :
-                                <b>{{ bank_details.ifsc_code }}</b></span>
-                            <img style="width: 150px; float: right" src="{{ bank_details.qr_scanner_image.url }}"
+                                <b>{{ bank_details.ifsc_code }}</b><br /><hr />
+                                Common Payment Link -<br /> <b>https://razorpay.me/@orosknetwork</b></span>
+                            <img style="width: 100px; float: right" src="{{ bank_details.qr_scanner_image.url }}"
                                 alt="Scanner Image" class="scanner-image" />
                         </td>
                     </tr>
