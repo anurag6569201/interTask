@@ -33,3 +33,31 @@
         font-size: 7px;
     }
 }
+::-webkit-scrollbar{
+    width: 0 !important;
+    opacity: 0 !important;
+}
+::-webkit-scrollbar-track{
+    width: 0px !important;
+}
+body::-webkit-scrollbar,
+html::-webkit-scrollbar{
+    width: 10px !important;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb{
+    background:linear-gradient(#e04eca,#bb54f5) !important;
+    border-radius: 10px;
+}
+.table-responsive {
+    overflow: auto !important;
+    padding-bottom: 10px; 
+}
+
+.modal-scrollbar-measure {
+    position: absolute;
+    top: -9999px;
+    width: 50px;
+    height: 50px;
+    overflow: auto !important; 
+}

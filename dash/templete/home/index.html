@@ -1,31 +1,188 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Dashboard {% endblock %} 
+{% block title %} OROSK Network Control Panel {% endblock %}
 
-<!-- Specific Page CSS goes HERE  -->
+<!-- Specific Page CSS goes HERE -->
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+        }
+
+        .button {
+            padding: 20px;
+            float: left;
+            font-size: 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 300px;
+            max-width: 200px;
+            height: 180px; /* Set equal height for all buttons */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            background-size: 200%;
+            background-position: left;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Ensure proper space between heading and paragraph */
+        }
+
+        .button h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+
+        .button p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        /* Hover and 3D effect */
+        .button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            background-position: right;
+        }
+
+        .button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Button 1 styling with gradient */
+        .btn1 {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            box-shadow: 0 6px 10px rgba(255, 105, 97, 0.4);
+        }
+
+        .btn1:hover {
+            background: linear-gradient(45deg, #ff8e53, #ff6b6b);
+        }
+
+        /* Button 2 styling with gradient */
+        .btn2 {
+            background: linear-gradient(45deg, #36d1dc, #5b86e5);
+            box-shadow: 0 6px 10px rgba(91, 134, 229, 0.4);
+        }
+
+        .btn2:hover {
+            background: linear-gradient(45deg, #5b86e5, #36d1dc);
+        }
+
+        /* Button 3 styling with gradient */
+        .btn3 {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            box-shadow: 0 6px 10px rgba(255, 153, 153, 0.4);
+        }
+
+        .btn3:hover {
+            background: linear-gradient(45deg, #fecfef, #ff9a9e);
+        }
+
+        /* Button 4 styling with gradient */
+        .btn4 {
+            background: linear-gradient(45deg, #d4fc79, #96e6a1);
+            box-shadow: 0 6px 10px rgba(150, 230, 161, 0.4);
+        }
+
+        .btn4:hover {
+            background: linear-gradient(45deg, #96e6a1, #d4fc79);
+        }
+        
+        /* Button 5 styling with gradient */
+        .btn5 {
+        background: linear-gradient(45deg, #ffb347, #ffcc33);
+        box-shadow: 0 6px 10px rgba(255, 181, 71, 0.4);
+        }
+
+        .btn5:hover {
+       background: linear-gradient(45deg, #ffcc33, #ffb347);
+        }
+
+        /* Button 6 styling with gradient */
+        .btn6 {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        box-shadow: 0 6px 10px rgba(106, 17, 203, 0.4);
+        }
+
+        .btn6:hover {
+         background: linear-gradient(45deg, #2575fc, #6a11cb);
+        }
+
+
+
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .button {
+                width: 80%;
+                height: auto;
+            }
+        }
+    </style>
+
     <div class="content">
         <div class="row">
             <div class="col-12">
-                <h1>Thats a main Dashboard page</h1>
+                <h2>OROSK Network - Control Panel</h2>
             </div>
+        </div>
+        
+        <div class="button-container">
+            <a href="{% url 'invoice:invoice' %}" class="button btn1">
+                <h2>INVOICES</h2>
+                <p>invoice creation, Invoice List, Download Invoices, Send invoice to Google Drive</p>
+            </a>
+            <a href="{% url 'status:order_list' %}" class="button btn2">
+                <h2>ORDER STATUS</h2>
+                <p>Customer Order Status adding, managing, removing, etc.</p>
+            </a>
+            
+            <a href="{% url 'letterhead:letterhead' %}" class="button btn3">
+                <h2>Letter Head</h2>
+                <p>Creating and customizing letterhead.</p>
+            </a>
+            
+            <a href="#" class="button btn4">
+                <h2>AI Chat BOT</h2>
+                <p>Clients chat data, leads and calls etc.</p>
+            </a>
+            
+             <a href="#" class="button btn5">
+                <h2>Website AI builder(Admin)</h2>
+                <p>Manage clients websites, Domains/Hosting/Email Management </p>
+            </a>
+            
+             <a href="#" class="button btn6">
+                <h2>DASHBORD SETTINGS</h2>
+                <p>Play Store Webapp, Email add, Email Change, Password reset, Authentication etc.</p>
+            </a>
         </div>
     </div>
 
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
+<!-- Specific Page JS goes HERE -->
 {% block javascripts %}
-
 <script>
     $(document).ready(function () {
         // Javascript method's body can be found in assets/js/demos.js
         demo.initDashboardPageCharts();
-
     });
 </script>
-
 {% endblock javascripts %}
