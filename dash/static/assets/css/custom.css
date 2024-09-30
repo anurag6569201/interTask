@@ -33,21 +33,13 @@
         font-size: 7px;
     }
 }
+
 ::-webkit-scrollbar{
-    width: 0 !important;
-    opacity: 0 !important;
-}
-::-webkit-scrollbar-track{
-    width: 0px !important;
-}
-body::-webkit-scrollbar,
-html::-webkit-scrollbar{
     width: 10px !important;
 }
-html::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb{
+::-webkit-scrollbar-thumb{
     background:linear-gradient(#e04eca,#bb54f5) !important;
-    border-radius: 10px;
+    border-radius: 10px !important;
 }
 .table-responsive {
     overflow: auto !important;
@@ -59,5 +51,5 @@ body::-webkit-scrollbar-thumb{
     top: -9999px;
     width: 50px;
     height: 50px;
-    overflow: auto !important; 
+    overflow: scroll !important; 
 }
