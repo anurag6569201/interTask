@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0 25px;
+            height: 100vh;
+            background-color: #edf3ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: rgb(129, 129, 129) !important;
+        }
+        .container {
+            height: 70vh;
+            border: 2px dashed rgb(156, 156, 156);
+            background:linear-gradient(#f5f5ed,#fbf6ed,#ecf2ef); 
+            overflow: hidden;
+            width: 100%;
+            position: relative;
+            border-radius: 10px;
+        }
+        .ck-editor,
+        #undoButton,
+        #redoButton,
+        #addTextButton {
+            background-color: white;
+            cursor: pointer;
+            width: 10em;
+            border: 1px solid #444;
+            font-weight: 800;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.4);
+        }
+        .draggable_containing_frame {
+            position: absolute; 
+            margin-bottom: 10px;
+            cursor: move;
+        }
+        #toolbarContainer {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .ck-editor {
+            width: 97vw !important;
+            background-color: #444;
+            border-radius: 10px !important;
+        }
+        .ck-content {
+            color: black !important;;
+        }
+        #textContainer {
+            text-align: center;
+            margin-top: 20vh;
+            font-size: 18px;
+        }
+        .toolbar-buttons {
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .toolbar-buttons button {
+            margin: 0 5px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: white;
+            border: 1px solid #444;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            .ck-editor,
+            #undoButton,
+            #redoButton,
+            #addTextButton {
+                background-color: white;
+                cursor: pointer;
+                width: 6em;
+                border: 1px solid #444;
+                font-weight: 800;
+                border-radius: 5px;
+                padding: 10px;
+                box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.4);
+            }
+        }
+
+    </style>
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+</head>
+<body>
+    <div class="logo" style="display: flex;align-items: center;justify-content: center;gap: 20px;">
+        <img src="https://celebrare.in/assets/img/celebrare-logo.webp" alt="" width="120"> <span><i><b>Intership Task</b></i></span>
+    </div>
+    <div class="container">
+        <div id="textContainer"></div>
+    </div>
+
+    <div id="toolbarContainer">
+        <div class="toolbar-buttons">
+            <button id="addTextButton">Add Text</button>
+            <button id="undoButton">Undo</button>
+            <button id="redoButton">Redo</button>
+        </div>
+        <div id="editor"></div>
+    </div>
+
+    <script>
+        let currentEditor = null; 
+        let currentElement = null; 
+        let contentArray = []; 
+        let history = []; 
+        let historyIndex = -1;
+
+        $(function() {
+            function makeDraggable(element) {
+                $(element).draggable({
+                    start: function(event, ui) {
+                        const index = $(this).data('index');
+                        history.push({
+                            action: 'dragStart',
+                            index: index,
+                            position: { top: ui.position.top, left: ui.position.left }
+                        });
+                    },
+                    stop: function(event, ui) {
+                        const index = $(this).data('index');
+                        history.push({
+                            action: 'dragStop',
+                            index: index,
+                            position: { top: ui.position.top, left: ui.position.left }
+                        });
+                        historyIndex++;
+                    }
+                });
+            }
+
+            function activateEditorFor(element) {
+                if (currentEditor && currentElement) {
+                    const index = $(currentElement).data('index');
+                    contentArray[index] = currentEditor.getData(); 
+                }
+                const index = $(element).data('index');
+                currentElement = element;
+                currentEditor.setData(contentArray[index] || '');
+            }
+
+            function restoreState(index) {
+                const state = history[index];
+                const element = $(`#textContainer .draggable_containing_frame[data-index='${state.index}']`);
+                if (element.length) {
+                    element.css({
+                        top: state.position.top,
+                        left: state.position.left
+                    });
+                }
+            }
+
+            function restoreToLatestState() {
+                $('#textContainer').empty();
+                contentArray = [];
+                history.forEach((item, index) => {
+                    const newTextBlock = `
+                        <div class="draggable_containing_frame" data-index="${item.index}" style="position: absolute; top: ${item.position.top}px; left: ${item.position.left}px;">
+                            <div class="editable_text" contenteditable="true">
+                                ${contentArray[item.index] || 'Click to edit this text.'}
+                            </div>
+                        </div>`;
+                    $('#textContainer').append(newTextBlock);
+                    contentArray[item.index] = contentArray[item.index] || 'Click to edit this text.';
+                    makeDraggable($('#textContainer .draggable_containing_frame').last());
+                });
+            }
+
+            ClassicEditor
+                .create(document.querySelector('#editor'), {
+                    toolbar: {
+                        items: [
+                            'undo', 'redo',
+                            '|',
+                            'heading',
+                            '|',
+                            'fontfamily', 'fontsize', 'fontColor', 'fontBackgroundColor',
+                            '|',
+                            'bold', 'italic', 'strikethrough', 'subscript', 'superscript', 'code',
+                            '|',
+                            'link', 'blockQuote', 'codeBlock',
+                            '|',
+                            'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent'
+                        ],
+                        shouldNotGroupWhenFull: false
+                    }
+                })
+                .then(editor => {
+                    currentEditor = editor;
+
+                    currentEditor.model.document.on('change:data', () => {
+                        if (currentElement) {
+                            const index = $(currentElement).data('index');
+                            contentArray[index] = currentEditor.getData(); 
+                            $(currentElement).find('.editable_text').html(contentArray[index]); 
+                        }
+                    });
+
+                    $('#undoButton').click(function() {
+                        if (historyIndex > 0) {
+                            historyIndex--; 
+                            restoreState(historyIndex); 
+                        }
+                    });
+
+                    $('#redoButton').click(function() {
+                        if (historyIndex < history.length - 1) {
+                            historyIndex++;
+                            restoreState(historyIndex); 
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+
+            $('#addTextButton').click(function() {
+                const index = $('#textContainer .draggable_containing_frame').length; 
+                const newTextBlock = `
+                    <div class="draggable_containing_frame" data-index="${index}" style="top: 0; left: 0;">
+                        <div class="editable_text" contenteditable="true">
+                            Click to edit this text.
+                        </div>
+                    </div>`;
+                
+                $('#textContainer').append(newTextBlock);
+                contentArray.push('Click to edit this text.'); 
+
+                makeDraggable($('#textContainer .draggable_containing_frame').last());
+
+                $('#textContainer .draggable_containing_frame').last().click(function() {
+                    activateEditorFor(this);
+                });
+            });
+
+            $('#textContainer').on('click', '.editable_text', function() {
+                activateEditorFor($(this).parent()[0]);
+            });
+        });
+    </script>
+</body>
+</html>
