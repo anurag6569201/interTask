@@ -3,6 +3,9 @@
 import os
 import sys
 
+import warnings
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 def main():
     """Run administrative tasks."""

@@ -28,7 +28,13 @@
                         <i class="tim-icons icon-single-copy-04"></i>
                         <p class="sidebar-items">Letterhead</p>
                     </a>
-                </li>                
+                </li>    
+                <li class="{% if '/chatbot/' in request.path %}active{% endif %}">
+                    <a href="{% url 'chatbot:chatbot' %}">
+                        <i class="tim-icons icon-chat-33"></i>
+                        <p class="sidebar-items">Chatbot</p>
+                    </a>
+                </li>               
                 <li>
                     <a href="{% url 'authentication:logout' %}">
                         <i class="tim-icons icon-button-power"></i>

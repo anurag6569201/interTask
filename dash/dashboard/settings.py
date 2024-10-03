@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'invoice',
     'status',
     'letterhead',
+    'chatbot',
 
     'django_ckeditor_5',
 ]

@@ -25,6 +25,7 @@ urlpatterns = [
     path('',include('invoice.urls')),
     path('',include('status.urls')),
     path('',include('letterhead.urls')),
+    path('',include('chatbot.urls')),
 
     path("ckeditor5/", include('django_ckeditor_5.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
