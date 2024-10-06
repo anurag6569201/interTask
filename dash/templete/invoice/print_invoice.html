@@ -384,37 +384,39 @@
     document
         .getElementById("download-pdf")
         .addEventListener("click", function () {
-            const invoiceElement = document.querySelector(".pdf_invoice");
+        const invoiceElement = document.querySelector(".pdf_invoice");
 
-            html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
-                const imgData = canvas.toDataURL("image/png");
-                const pdf = new jspdf.jsPDF("p", "mm", "a4");
+        // Reduce scale for smaller canvas size
+        html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL("image/jpeg", 0.75);  // JPEG format with 75% quality
+            const pdf = new jspdf.jsPDF("p", "mm", "a4");
 
-                const pageWidth = 210;
-                const pageHeight = 297;
+            const pageWidth = 210;
+            const pageHeight = 297;
 
-                const canvasWidth = canvas.width;
-                const canvasHeight = canvas.height;
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
 
-                const imgWidth = pageWidth;
-                const imgHeight = (canvasHeight * imgWidth) / canvasWidth;
+            const imgWidth = pageWidth;
+            const imgHeight = (canvasHeight * imgWidth) / canvasWidth;
 
-                let heightLeft = imgHeight;
-                let position = 0;
+            let heightLeft = imgHeight;
+            let position = 0;
 
-                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            // Add JPEG image with quality and compression settings
+            pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
                 heightLeft -= pageHeight;
+            }
 
-                while (heightLeft > 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-
-                pdf.save(`invoice_.pdf`);
-            });
+            pdf.save(`invoice.pdf`);
         });
+    });
 </script>
 <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
 
@@ -505,3 +507,4 @@
         loadPicker(); 
     });
 </script>
+</div>

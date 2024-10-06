@@ -3,7 +3,7 @@ from django.conf import settings
 from .models import chatbot_prompt,PDFDocument
 from .forms import PDFDocumentForm, PromptForm
 import os
-from chatbot.llm import pinecone_init,get_response
+from chatbot.llm import get_response
 from dashboard.utils import text_split
 import json
 import logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def chatbot(request):
     latest_doc = PDFDocument.objects.order_by('-uploaded_at').first()
-    prompt = chatbot_prompt.objects.first()
+    prompt = chatbot_prompt.objects.order_by('uploaded_at').first()
     if request.method == 'POST':
         form = PDFDocumentForm(request.POST, request.FILES)
         if form.is_valid():
@@ -24,7 +24,6 @@ def chatbot(request):
                     os.remove(file_path)
             form.save()
             text_chunks = text_split()
-            pinecone_init(text_chunks)
             print("Successfully created pinecone document")
             return redirect("chatbot:chatbot")
         

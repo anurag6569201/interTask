@@ -156,40 +156,43 @@
 
 <script>
     document.getElementById("download-pdf").addEventListener("click", function () {
-        const invoiceElement = document.querySelector(".pdf_invoice");
+    const invoiceElement = document.querySelector(".pdf_invoice");
 
-        // Use html2canvas to create a canvas from the PDF invoice
-        html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
-            const imgData = canvas.toDataURL("image/png");
-            const pdf = new jsPDF("p", "mm", "a4");
+    // Use html2canvas to create a canvas from the PDF invoice
+    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+        // Convert canvas to JPEG format for smaller file size
+        const imgData = canvas.toDataURL("image/jpeg", 0.75); // JPEG format with 75% quality
+        const pdf = new jsPDF("p", "mm", "a4");
 
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
 
-            // Calculate the image dimensions based on the PDF page dimensions
-            const imgWidth = pageWidth; // Full width of the page
-            const imgHeight = (canvasHeight * imgWidth) / canvasWidth; // Maintain aspect ratio
+        // Calculate the image dimensions based on the PDF page dimensions
+        const imgWidth = pageWidth; // Full width of the page
+        const imgHeight = (canvasHeight * imgWidth) / canvasWidth; // Maintain aspect ratio
 
-            let heightLeft = imgHeight; // Remaining height to be added
-            let position = 0;
+        let heightLeft = imgHeight; // Remaining height to be added
+        let position = 0;
 
-            // Add the first image on the first page
-            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight); // Position at (0,0) with no margins
-            heightLeft -= pageHeight; // Update the remaining height
+        // Add the first image on the first page
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight); // Position at (0,0) with no margins
+        heightLeft -= pageHeight; // Update the remaining height
 
-            // Loop to add additional pages if the content exceeds one page
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeight; // Calculate position for next page
-                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight); // Position at (0, position)
-                heightLeft -= pageHeight; // Update remaining height
-            }
+        // Loop to add additional pages if the content exceeds one page
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight; // Calculate position for next page
+            pdf.addPage(); // Add a new page before adding the image
+            pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight); // Position at (0, position)
+            heightLeft -= pageHeight; // Update remaining height
+        }
 
-            pdf.save('letterhead.pdf'); // Save the generated PDF
-        });
+        pdf.save('letterhead.pdf'); // Save the generated PDF
     });
+});
+
 </script>
 
     

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
+import datetime
 
 def validate_file_size(value):
     limit_mb = 5
@@ -20,3 +21,4 @@ class PDFDocument(models.Model):
 
 class chatbot_prompt(models.Model):
     prompt_text = models.TextField()
+    uploaded_at = models.DateTimeField(default=datetime.datetime.now)
