@@ -1,0 +1,148 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %} Edit CSV File {% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+<style>
+    .csv-table-container {
+        margin-top: 20px;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+    .csv-controls {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .csv-controls button {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h2>EDIT CSV FILE</h2>
+            <div class="csv-table-container">
+                <table id="csv-table">
+                    <thead>
+                        <tr id="csv-table-header"></tr>
+                    </thead>
+                    <tbody id="csv-table-body"></tbody>
+                </table>
+            </div>
+
+            <!-- CSV Controls -->
+            <div class="csv-controls">
+                <button id="save-btn" class="btn btn-success" onclick="saveCSV()">Save Changes</button>
+                <button class="btn btn-warning" onclick="resetCSV()">Reset CSV</button>
+                <button class="btn btn-primary" onclick="addRow()">Add New Row</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'assets/js/core/jquery.min.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchCSV();
+    });
+
+    function fetchCSV() {
+        const url = "{% url 'chatbot:fetch_csv_data' document.id %}";
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                displayCSV(data.csv_content);
+            });
+    }
+
+    // Display CSV content in the table
+    function displayCSV(csv) {
+        const rows = csv.split('\n');
+        const tableHeader = document.getElementById('csv-table-header');
+        const tableBody = document.getElementById('csv-table-body');
+        
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        rows.forEach((row, index) => {
+            const cells = row.split('::');  // Use specific delimiter
+            if (index === 0) {
+                cells.forEach(cell => {
+                    const th = document.createElement('th');
+                    th.textContent = cell;
+                    tableHeader.appendChild(th);
+                });
+            } else {
+                const tr = document.createElement('tr');
+                cells.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.contentEditable = true;
+                    td.textContent = cell.trim();
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            }
+        });
+    }
+
+    // Save CSV Changes
+    function saveCSV() {
+        const tableBody = document.getElementById('csv-table-body');
+        const rows = Array.from(tableBody.rows).map(row => 
+            Array.from(row.cells).map(cell => cell.textContent.trim()).join('::')  // Use specific delimiter
+        );
+        const csvData = rows.join('\n');
+        
+        $.ajax({
+            url: "{% url 'chatbot:edit_csv' document.id %}",
+            type: "POST",
+            data: {
+                'csv_data': csvData,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                alert("CSV file updated successfully.");
+                window.location.reload();
+            },
+            error: function (error) {
+                alert("Error saving CSV file.");
+            }
+        });
+    }
+
+    // Add New Row to CSV
+    function addRow() {
+        const tableBody = document.getElementById('csv-table-body');
+        const newRow = document.createElement('tr');
+
+        // Assuming the header defines the number of columns
+        const columnCount = document.getElementById('csv-table-header').children.length;
+        for (let i = 0; i < columnCount; i++) {
+            const td = document.createElement('td');
+            td.contentEditable = true;  // Make cells editable
+            td.textContent = '';  // Initial empty content
+            newRow.appendChild(td);
+        }
+        tableBody.appendChild(newRow);
+    }
+
+    // Reset CSV changes
+    function resetCSV() {
+        window.location.reload();
+    }
+</script>
+{% endblock %}

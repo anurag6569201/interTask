@@ -6,7 +6,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from django.conf import settings
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
-
+from chatbot.models import QueryResponse
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -128,7 +129,11 @@ def create_agent_with_memory():
             )
             data_prompt = prompt_template.format(user_input=user_input, combined_response=combined_response)
             llm_response = llm_model.predict(data_prompt)
-
+            QueryResponse.objects.create(
+                user_id=user_id,
+                user_query=user_input,
+                ai_response=llm_response
+            )
             return {"query": user_input, "response": llm_response}
 
         # Handle non-relevant queries
@@ -144,6 +149,11 @@ def create_agent_with_memory():
             text_content = pd.read_csv(textual_csv).to_string()
             fallback_data = fallback_prompt.format(user_input=user_input,text_content=text_content)
             llm_response = llm_model.predict(fallback_data)
+            QueryResponse.objects.create(
+                user_id=user_id,
+                user_query=user_input,
+                ai_response=llm_response
+            )
             save_to_memory(user_id, f"{context}\n{user_input}\n{llm_response}")
             return {"query": user_input, "response": llm_response}
 
@@ -151,8 +161,11 @@ def create_agent_with_memory():
 
 
 
-# Create the agent with memory
-user_id = 'user_1234'
+def get_random_user_id():
+    return str(uuid.uuid4())
+
+# Usage
+user_id = get_random_user_id()
 handle_request = create_agent_with_memory()
 
 def get_response(message):

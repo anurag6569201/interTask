@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.conf import settings
-from .models import chatbot_prompt,PDFDocument
+from .models import PDFDocument,QueryResponse
 from .forms import PDFDocumentForm, PromptForm
 import os
 from chatbot.llm import get_response
@@ -10,38 +10,53 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 logger = logging.getLogger(__name__)
+import csv
+from django.db.models import Min
 
 def chatbot(request):
-    latest_doc = PDFDocument.objects.order_by('-uploaded_at').first()
-    prompt = chatbot_prompt.objects.order_by('uploaded_at').first()
+    latest_doc = PDFDocument.objects.order_by('-uploaded_at').all()
+    links_csv = PDFDocument.objects.filter(file_type='links').first()
+    text_csv = PDFDocument.objects.filter(file_type='text').first()
+
+    first_chats = QueryResponse.objects.values('user_id').annotate(first_query=Min('created_at'))
+
+    # Fetch all chats, ordered by user and timestamp, for those users
+    grouped_chats = {}
+    for entry in first_chats:
+        user_id = entry['user_id']
+        user_chats = QueryResponse.objects.filter(user_id=user_id).order_by('created_at')
+
+        if user_chats.exists():
+            grouped_chats[user_id] = list(user_chats)
+
     if request.method == 'POST':
         form = PDFDocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            pdfs_path = os.path.join(settings.MEDIA_ROOT, 'pdfs/')
-            for filename in os.listdir(pdfs_path):
-                file_path = os.path.join(pdfs_path, filename)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
+            file_type = form.cleaned_data['file_type']
+
+            # Remove the old file if already exists
+            existing_file = PDFDocument.objects.filter(file_type=file_type).first()
+            if existing_file:
+                if os.path.isfile(existing_file.pdf_file.path):
+                    os.remove(existing_file.pdf_file.path)
+                existing_file.delete()
+
             form.save()
-            text_chunks = text_split()
-            print("Successfully created pinecone document")
+            print("Successfully submitted document")
             return redirect("chatbot:chatbot")
-        
-        prompt_form = PromptForm(request.POST, instance=prompt)
-        if prompt_form.is_valid():
-            prompt_form.save()
 
     else:
         form = PDFDocumentForm()
-        prompt_form = PromptForm(instance=prompt)
 
     context = {
         'form': form,
-        'prompt_form': prompt_form,
-        'prompt': prompt,
-        'latest_doc':latest_doc,
+        'latest_doc': latest_doc,
+        'links_csv': links_csv,
+        'text_csv': text_csv,
+        'grouped_chats': grouped_chats,
     }
     return render(request, 'chatbot/chatbot.html', context)
+
 
 
 @csrf_exempt
@@ -61,3 +76,35 @@ def send_message(request):
             logger.error(f"Unexpected error: {e}")
             return JsonResponse({"error": "An unexpected error occurred."}, status=500)
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+
+
+
+def edit_csv(request, pk):
+    document = get_object_or_404(PDFDocument, pk=pk)
+
+    if request.method == 'POST':
+        csv_data = request.POST.get('csv_data')
+        if csv_data:
+            csv_file_path = document.pdf_file.path
+            # Save the updated CSV data back to the file
+            with open(csv_file_path, 'w', newline='') as csv_file:
+                csv_file.write(csv_data)  # Write new content to the file
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'error': 'No CSV data received'}, status=400)
+
+    return render(request, 'chatbot/edit_csv.html', {'document': document})
+
+
+def fetch_csv_data(request, pk):
+    document = get_object_or_404(PDFDocument, pk=pk)
+    csv_file_path = document.pdf_file.path
+
+    # Read the CSV file
+    try:
+        with open(csv_file_path, 'r') as file:
+            csv_content = file.read()
+        return JsonResponse({'csv_content': csv_content})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

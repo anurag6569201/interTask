@@ -5,9 +5,7 @@ from .models import chatbot_prompt
 class PDFDocumentForm(forms.ModelForm):
     class Meta:
         model = PDFDocument
-        fields = ['pdf_file']
-
-
+        fields = ['pdf_file', 'file_type']
 
 class PromptForm(forms.ModelForm):
     class Meta:
