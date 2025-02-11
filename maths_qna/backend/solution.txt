@@ -1,0 +1,48 @@
+{
+  "problems": [
+    {
+      "question": "Determine if the function y = 6^x represents exponential growth or exponential decay, then graph the function.",
+      "answer": "Exponential Growth",
+      "solution": {
+        "step_1": "Identify the base of the exponential function. Here, the base is 6.",
+        "step_2": "Check if the base is greater than 1 or less than 1. Since 6 > 1, the function represents exponential growth.",
+        "step_3": "To graph the function, create a table of values by substituting different values for x (e.g., -2, -1, 0, 1, 2).",
+        "step_4": "Plot the points derived from the table of values and connect them smoothly to show the exponential growth curve."
+      },
+      "hints": "If the base is greater than 1, the function is exponential growth. If the base is between 0 and 1, it is exponential decay."
+    },
+    {
+      "question": "Determine if the function y = 7^x represents exponential growth or exponential decay, then graph the function.",
+      "answer": "Exponential Growth",
+      "solution": {
+        "step_1": "Identify the base of the exponential function. Here, the base is 7.",
+        "step_2": "Check if the base is greater than 1 or less than 1. Since 7 > 1, the function represents exponential growth.",
+        "step_3": "To graph the function, create a table of values by substituting different values for x (e.g., -2, -1, 0, 1, 2).",
+        "step_4": "Plot the points derived from the table of values and connect them smoothly to show the exponential growth curve."
+      },
+      "hints": "If the base is greater than 1, the function is exponential growth. If the base is between 0 and 1, it is exponential decay."
+    },
+    {
+      "question": "Determine if the function y = (1/6)^x represents exponential growth or exponential decay, then graph the function.",
+      "answer": "Exponential Decay",
+      "solution": {
+        "step_1": "Identify the base of the exponential function. Here, the base is 1/6.",
+        "step_2": "Check if the base is greater than 1 or less than 1. Since 1/6 < 1, the function represents exponential decay.",
+        "step_3": "To graph the function, create a table of values by substituting different values for x (e.g., -2, -1, 0, 1, 2).",
+        "step_4": "Plot the points derived from the table of values and connect them smoothly to show the exponential decay curve."
+      },
+      "hints": "If the base is greater than 1, the function is exponential growth. If the base is between 0 and 1, it is exponential decay."
+    },
+    {
+      "question": "Determine if the function y = (1/8)^x represents exponential growth or exponential decay, then graph the function.",
+      "answer": "Exponential Decay",
+      "solution": {
+        "step_1": "Identify the base of the exponential function. Here, the base is 1/8.",
+        "step_2": "Check if the base is greater than 1 or less than 1. Since 1/8 < 1, the function represents exponential decay.",
+        "step_3": "To graph the function, create a table of values by substituting different values for x (e.g., -2, -1, 0, 1, 2).",
+        "step_4": "Plot the points derived from the table of values and connect them smoothly to show the exponential decay curve."
+      },
+      "hints": "If the base is greater than 1, the function is exponential growth. If the base is between 0 and 1, it is exponential decay."
+    }
+  ]
+}
