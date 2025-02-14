@@ -1,0 +1,1 @@
+current_folder_paths = ['/Users/anuragsingh/Documents/GitHub/LLM/book_arrangement/extraction_data/../extraction_data/material/233_I_Polynomials_1/2547', '/Users/anuragsingh/Documents/GitHub/LLM/book_arrangement/extraction_data/../extraction_data/material/233_I_Polynomials/2546']
