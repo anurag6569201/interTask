@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Simplex Solver</title>
+    <script src="https://cdn.jsdelivr.net/npm/fraction.js@5.2.1/dist/fraction.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .input-section {
+            width: 100%;
+            margin: 20px 0;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .tablesContainer{
+            width: 100%;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 25px 0;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pivot-row {
+            background-color: #bce2bf !important;
+        }
+
+        .pivot-column {
+            background-color: #deba81 !important;
+        }
+
+        .explanation {
+            width: 100%;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid #007bff;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .fraction span {
+            display: block;
+            padding: 0 3px;
+        }
+
+        .fraction .numerator {
+            border-bottom: 1px solid;
+        }
+
+        .solution-box {
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        input,textarea{
+            width:100%;
+            padding:10px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #2c3e50; margin-bottom: 10px;">Advanced Simplex Method Solver</h1>
+    <div class="container">
+        <div class="input-section">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Objective Function Coefficients (comma-separated):</label>
+                <input type="text" id="objective" class="form-input" placeholder="Example: 4,10">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Constraints (one per line):</label>
+                <textarea id="constraints" rows="4" class="form-input" placeholder="Example: 
+    2,1,<=,50
+    2,5,<=,100
+    2,3,<=,90"></textarea>
+            </div>
+            
+            <div>
+                <button onclick="initializeProblem()" style="background: #28a745;">Initialize Problem</button>
+                <button id="nextBtn" onclick="performIteration()" style="display: none; background: #17a2b8;">Next Iteration</button>
+                <button onclick="resetSolver()" style="background: #dc3545;">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="tablesContainer"></div>
+    </div>
+
+    <script>
+        let currentState = null;
+
+        function initializeProblem() {
+            const objective = parseObjective();
+            const constraints = parseConstraints();
+            
+            if (!objective || !constraints) return;
+            
+            currentState = createInitialState(objective, constraints);
+            renderState(currentState);
+            document.getElementById('nextBtn').style.display = 'inline';
+        }
+        function toFrac(number) {
+            if (number == Infinity) return "∞";
+            if (number == -Infinity) return "-∞";
+            const f = new Fraction(number);
+            if (f.d == 1) return f.s * f.n;
+            if (f.n == 0) return "0";
+            return `${f.s * f.n}/${f.d}`;
+        }
+
+        function resetSolver() {
+            currentState = null;
+            document.getElementById('tablesContainer').innerHTML = '';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('objective').value = '';
+            document.getElementById('constraints').value = '';
+        }
+        function parseObjective() {
+            const input = document.getElementById('objective').value.trim();
+            const coefficients = input.split(',').map(Number);
+            
+            if (coefficients.some(isNaN)) {
+                alert('Invalid objective function');
+                return null;
+            }
+            return coefficients;
+        }
+
+        function parseConstraints() {
+            const input = document.getElementById('constraints').value.trim();
+            const lines = input.split('\n').map(line => line.trim());
+            const constraints = [];
+            
+            for (const line of lines) {
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length < 4 || !['<=', '>=', '='].includes(parts[parts.length-2])) {
+                    alert(`Invalid constraint: ${line}`);
+                    return null;
+                }
+                
+                const coefficients = parts.slice(0, -2).map(Number);
+                const relation = parts[parts.length-2];
+                const rhs = Number(parts[parts.length-1]);
+                
+                if (coefficients.some(isNaN) || isNaN(rhs)) {
+                    alert(`Invalid numbers in constraint: ${line}`);
+                    return null;
+                }
+                
+                constraints.push({ coefficients, relation, rhs });
+            }
+            return constraints;
+        }
+
+        function createInitialState(objective, constraints) {
+            const numVars = objective.length;
+            const numSlacks = constraints.length;
+            
+            // Create variables list
+            const variables = [];
+            for (let i = 0; i < numVars; i++) variables.push(`x${i+1}`);
+            for (let i = 0; i < numSlacks; i++) variables.push(`s${i+1}`);
+            
+            // Create initial tableau rows
+            const rows = [];
+            const basis = [];
+            const cb = [];
+            
+            constraints.forEach((constraint, i) => {
+                const row = [...constraint.coefficients];
+                for (let j = 0; j < numSlacks; j++) {
+                    row.push(i === j ? 1 : 0);
+                }
+                row.push(constraint.rhs);
+                rows.push(row);
+                basis.push(`s${i+1}`);
+                cb.push(0);
+            });
+            
+            return {
+                variables,
+                objective,
+                basis,
+                cb,
+                rows,
+                iteration: 1,
+                explanation: "Initial tableau"
+            };
+        }
+
+        function renderState(state) {
+            const container = document.getElementById('tablesContainer');
+            
+            // Create table
+            const table = document.createElement('table');
+            const caption = document.createElement('caption');
+            caption.textContent = `Iteration ${state.iteration}`;
+            table.appendChild(caption);
+            
+            // Create header
+            const thead = document.createElement('thead');
+            let html = '<tr><th>Basic</th><th>CB</th>';
+            state.variables.forEach(v => html += `<th>${v}</th>`);
+            html += '<th>RHS</th></tr>';
+            thead.innerHTML = html;
+            
+            // Add cj row
+            const cjRow = document.createElement('tr');
+            cjRow.innerHTML = `<td>c<sub>j</sub></td><td></td>`;
+            state.objective.forEach(c => cjRow.innerHTML += `<td>${c}</td>`);
+            for (let i = 0; i < state.rows.length; i++) cjRow.innerHTML += '<td>0</td>';
+            cjRow.innerHTML += '<td></td>';
+            thead.appendChild(cjRow);
+            table.appendChild(thead);
+            
+            // Create body
+            const tbody = document.createElement('tbody');
+            state.basis.forEach((basicVar, i) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${basicVar}</td><td>${state.cb[i]}</td>`;
+                state.rows[i].forEach(v => row.innerHTML += `<td>${toFrac(v)}</td>`);
+                tbody.appendChild(row);
+            });
+            
+            // Calculate Zj and Cj-Zj
+            const zj = Array(state.variables.length + 1).fill(0);
+            state.rows.forEach((row, i) => {
+                row.forEach((val, j) => zj[j] += state.cb[i] * val);
+            });
+            
+            const zjRow = document.createElement('tr');
+            zjRow.innerHTML = '<td>Z<sub>j</sub></td><td></td>';
+            zj.forEach(v => zjRow.innerHTML += `<td>${toFrac(v)}</td>`);
+            tbody.appendChild(zjRow);
+            
+            const cjZj = [];
+            state.variables.forEach((_, i) => {
+                cjZj.push((i < state.objective.length ? state.objective[i] : 0) - zj[i]);
+            });
+            
+            const cjZjRow = document.createElement('tr');
+            cjZjRow.innerHTML = '<td>C<sub>j</sub>-Z<sub>j</sub></td><td></td>';
+            cjZj.forEach(v => cjZjRow.innerHTML += `<td>${toFrac(v)}</td>`);
+            cjZjRow.innerHTML += '<td></td>';
+            tbody.appendChild(cjZjRow);
+            
+            table.appendChild(tbody);
+            container.appendChild(table);
+            
+            // Add explanation
+            const explanation = document.createElement('div');
+            explanation.className = 'explanation';
+            explanation.innerHTML = `<strong>Iteration ${state.iteration}:</strong> ${state.explanation}`;
+            if (state.entering) explanation.innerHTML += `<br>Entering variable: ${state.entering}`;
+            if (state.leaving) explanation.innerHTML += `<br>Leaving variable: ${state.leaving}`;
+            container.appendChild(explanation);
+        }
+
+        function performIteration() {
+            if (!currentState) return;
+            
+            // Check for optimality
+            const zj = Array(currentState.variables.length + 1).fill(0);
+            currentState.rows.forEach((row, i) => {
+                row.forEach((val, j) => zj[j] += currentState.cb[i] * val);
+            });
+            
+            const cjZj = [];
+            currentState.variables.forEach((_, i) => {
+                cjZj.push((i < currentState.objective.length ? currentState.objective[i] : 0) - zj[i]);
+            });
+            
+            const maxCjZj = Math.max(...cjZj);
+            if (maxCjZj <= 0) {
+                alert('Optimal solution reached!');
+                document.getElementById('nextBtn').disabled = true;
+                return;
+            }
+            
+            // Select entering variable
+            const enteringIndex = cjZj.indexOf(maxCjZj);
+            const enteringVar = currentState.variables[enteringIndex];
+            
+            // Select leaving variable
+            const ratios = currentState.rows.map(row => {
+                const coef = row[enteringIndex];
+                return coef > 0 ? row[row.length-1] / coef : Infinity;
+            });
+            const minRatio = Math.min(...ratios);
+            if (minRatio === Infinity) {
+                alert('Problem is unbounded!');
+                return;
+            }
+            const leavingIndex = ratios.indexOf(minRatio);
+            const leavingVar = currentState.basis[leavingIndex];
+            
+            // Create new state
+            const newState = {
+                ...currentState,
+                iteration: currentState.iteration + 1,
+                basis: [...currentState.basis],
+                cb: [...currentState.cb],
+                rows: currentState.rows.map(row => [...row]),
+                explanation: "Performing pivot operation",
+                entering: enteringVar,
+                leaving: leavingVar
+            };
+            
+            // Update basis and CB
+            newState.basis[leavingIndex] = enteringVar;
+            newState.cb[leavingIndex] = currentState.objective[enteringIndex] || 0;
+            
+            // Perform pivot operations
+            const pivotRow = newState.rows[leavingIndex];
+            const pivotValue = pivotRow[enteringIndex];
+            
+            // Normalize pivot row
+            for (let i = 0; i < pivotRow.length; i++) {
+                pivotRow[i] /= pivotValue;
+            }
+            
+            // Update other rows
+            newState.rows.forEach((row, i) => {
+                if (i === leavingIndex) return;
+                const factor = row[enteringIndex];
+                for (let j = 0; j < row.length; j++) {
+                    row[j] -= factor * pivotRow[j];
+                }
+            });
+            
+            // Update explanation
+            newState.explanation = `Pivot on ${enteringVar} (column) and ${leavingVar} (row)`;
+            
+            currentState = newState;
+            renderState(currentState);
+        }
+        
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
