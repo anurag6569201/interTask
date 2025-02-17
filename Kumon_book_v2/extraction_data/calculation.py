@@ -21,7 +21,7 @@ from openai import AzureOpenAI
 # Azure OpenAI Config
 endpoint = "https://ai-anuragsingh65692019195ai682501652060.openai.azure.com/"
 deployment = "gpt-4o"
-subscription_key = "ApKKNDsSgzuAwzeg0YmI97hia2uygeg8bQ7CheJt7jiP80BMxkRqJQQJ99ALACHYHv6XJ3w3AAAAACOGHz2s"
+subscription_key = ""
 
 
 def pdf_page_to_base64(pdf_path: str, page_number: int):
