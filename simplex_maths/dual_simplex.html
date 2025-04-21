@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Simplex Solver - Enhanced UI</title>
+    <script src="https://cdn.jsdelivr.net/npm/fraction.js@4.3.7/fraction.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        :root {
+            --primary-color: #0d6efd; /* Bootstrap primary */
+            --secondary-color: #6c757d; /* Bootstrap secondary */
+            --success-color: #198754; /* Bootstrap success */
+            --info-color: #0dcaf0; /* Bootstrap info */
+            --warning-color: #ffc107; /* Bootstrap warning */
+            --danger-color: #dc3545; /* Bootstrap danger */
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --table-header-bg: #343a40; /* Darker header */
+            --table-header-color: #ffffff;
+            --table-hover-bg: #e9ecef;
+            --pivot-row-bg: rgba(220, 53, 69, 0.15); /* Lighter danger for row */
+            --pivot-col-bg: rgba(25, 135, 84, 0.1); /* Lighter success for col */
+            --pivot-el-bg: rgba(255, 193, 7, 0.3);  /* Lighter warning for element */
+            --border-color: #dee2e6;
+            --base-font-size: 1rem; /* 16px */
+            --font-family-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            /* Optional Google Font: --font-family-sans-serif: 'Poppins', sans-serif; */
+        }
+
+        body {
+            font-family: var(--font-family-sans-serif);
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-size: var(--base-font-size);
+            line-height: 1.6;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .input-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            margin-bottom: 2rem;
+            max-width: 800px; /* Control max width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tables-container {
+            width: 100%;
+            overflow-x: auto; /* Enable horizontal scroll */
+            margin-bottom: 2rem;
+            max-width: 1200px; /* Control max width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 700px; /* Ensure minimum width before scroll */
+            margin-bottom: 1.5rem;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 0.375rem; /* Bootstrap's default */
+            overflow: hidden; /* Clip corners */
+            font-size: 0.95rem; /* Slightly smaller font in table */
+        }
+
+        th, td {
+            padding: 0.8rem 1rem; /* Increased padding */
+            text-align: center;
+            vertical-align: middle; /* Vertically center content */
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: var(--table-header-color);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10; /* Ensure header is above scrolling content */
+        }
+
+        caption {
+             caption-side: top;
+             padding: 0.75rem 1rem;
+             font-weight: 600;
+             font-size: 1.1rem;
+             color: var(--dark-color);
+             text-align: center;
+             background-color: var(--light-color);
+             border-bottom: 2px solid var(--primary-color);
+         }
+
+        tbody tr:hover {
+            background-color: var(--table-hover-bg);
+        }
+
+        /* --- Highlighting Classes --- */
+        .highlight-leaving-row td {
+            background-color: var(--pivot-row-bg) !important;
+        }
+        .highlight-entering-col { /* Applied to cells in the column */
+            background-color: var(--pivot-col-bg) !important;
+        }
+        .highlight-pivot-el { /* Applied specifically to the pivot element cell */
+            background-color: var(--pivot-el-bg) !important;
+            font-weight: 700;
+            outline: 2px solid var(--warning-color); /* Add outline */
+            outline-offset: -1px;
+        }
+        /* Highlight Cj-Zj row cell in entering column */
+         tbody tr:last-child td.highlight-entering-col {
+             background-color: var(--pivot-col-bg) !important;
+             font-weight: 600;
+         }
+
+
+        /* --- Fraction Styling --- */
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 1; /* Adjust line height */
+            margin: -4px 2px; /* Fine-tune vertical position */
+        }
+        .fraction span {
+            display: block;
+            padding: 1px 3px; /* Adjust padding */
+        }
+        .fraction .numerator {
+            border-bottom: 1.5px solid currentColor; /* Thicker line */
+        }
+        .fraction .denominator {
+            padding-top: 1px;
+        }
+
+        /* --- Explanation & Solution Boxes --- */
+        .explanation-box, .solution-box {
+            border-left-width: 5px;
+            border-radius: 0.375rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            max-width: 1200px; /* Control max width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+         .explanation-box { /* Using alert-secondary styling */
+            border-left-color: var(--secondary-color);
+            background-color: #e2e3e5; /* Corresponds to alert-secondary */
+            color: #41464b;
+         }
+         .solution-box { /* Using alert-success styling */
+            border-left-color: var(--success-color);
+            background-color: #d1e7dd; /* Corresponds to alert-success */
+            color: #0a3622;
+         }
+         .explanation-box h5, .solution-box h4 {
+             margin-top: 0;
+             font-weight: 600;
+         }
+         .solution-box ul {
+            padding-left: 1.5rem;
+            margin-bottom: 0;
+         }
+         .solution-box li {
+             margin-bottom: 0.3rem;
+         }
+
+        /* --- Buttons --- */
+        .button-group {
+            display: flex;
+            gap: 0.75rem; /* Space between buttons */
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            margin-top: 1.5rem;
+        }
+        /* Use Bootstrap button classes directly in HTML */
+
+         /* --- Input Field Styling --- */
+         /* Use Bootstrap form-label, form-control, form-text */
+         label.form-label {
+             font-weight: 500;
+             margin-bottom: 0.5rem;
+         }
+         textarea.form-control {
+             min-height: 100px; /* Ensure reasonable height */
+             font-family: monospace; /* Good for constraint entry */
+         }
+         .form-text {
+             font-size: 0.875em;
+             margin-top: 0.25rem;
+         }
+
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container py-4">
+        <h1>Dual Simplex Method Solver</h1>
+
+        <div class="input-section">
+            <form onsubmit="return false;"> <div class="mb-4"> <label for="objective" class="form-label">Objective Function Coefficients (Maximize):</label>
+                    <input type="text" id="objective" class="form-control" placeholder="Example: -2,-1 (for Min 2x1 + x2)">
+                    <div class="form-text">Enter coefficients for Maximization. For Minimization (Min C*X), use Maximization (-C*X). Comma-separated.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="constraints" class="form-label">Constraints:</label>
+                    <textarea id="constraints" rows="5" class="form-control" placeholder="Enter constraints one per line, using '<=' relation.
+Example:
+-1,-1,<=,-1
+-2,1,<=,-2"></textarea>
+                    <div class="form-text">Format: `coeff1,coeff2,...,<=,rhs`. Initial RHS can be negative.</div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" onclick="initializeProblem()" class="btn btn-primary">Initialize Tableau</button>
+                    <button type="button" id="nextBtn" onclick="performIteration()" style="display: none;" class="btn btn-info">Next Iteration</button>
+                    <button type="button" onclick="resetSolver()" class="btn btn-outline-danger">Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="container px-0"> <div id="tablesContainer" class="tables-container">
+                </div>
+            <div id="solutionContainer">
+                </div>
+        </div>
+    </div><script>
+        let currentState = null;
+
+        // Use Fraction.js for precise calculations
+        function frac(value) {
+            try {
+                let num = Number(value);
+                // Increased tolerance slightly
+                if (Math.abs(num) < 1e-10) num = 0;
+                return new Fraction(num);
+            } catch (e) {
+                console.error("Fraction error for value:", value, e);
+                return new Fraction(0);
+            }
+        }
+
+        // Format fraction for display
+        function formatFrac(f) {
+            if (!(f instanceof Fraction)) {
+               try {
+                   f = frac(f); // Ensure it's a Fraction object
+               } catch {
+                   return 'NaN'; // Handle conversion errors
+               }
+            }
+             if (isNaN(f.n) || isNaN(f.d)) return 'NaN'; // Check if fraction itself is valid
+             if (f.d === 1) return f.s * f.n; // Integer
+             if (f.n === 0) return 0; // Zero
+             // Simple decimal representation for common fractions (optional)
+             // if ([2, 4, 5, 8, 10].includes(f.d)) {
+             //     return f.valueOf().toFixed(Math.max(2, f.toString().length - f.n.toString().length -1));
+             // }
+            return `<div class="fraction"><span class="numerator">${f.s * f.n}</span><span class="denominator">${f.d}</span></div>`;
+        }
+
+
+        function initializeProblem() {
+            const objectiveCoeffs = parseObjective();
+            const constraints = parseConstraints();
+
+            if (!objectiveCoeffs || !constraints) return;
+             if (constraints.length === 0) {
+                 alert("Please enter at least one constraint.");
+                 return;
+             }
+             // Validate coefficient counts match *before* creating state
+             if (objectiveCoeffs.length !== constraints[0].coefficients.length) {
+                alert("Number of objective coefficients must match number of variables in constraints.");
+                return;
+             }
+
+            currentState = createInitialState(objectiveCoeffs, constraints);
+            document.getElementById('tablesContainer').innerHTML = ''; // Clear previous tables
+            document.getElementById('solutionContainer').innerHTML = ''; // Clear previous solution
+            renderState(currentState);
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function resetSolver() {
+            currentState = null;
+            document.getElementById('tablesContainer').innerHTML = '';
+            document.getElementById('solutionContainer').innerHTML = '';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('objective').value = '';
+            document.getElementById('constraints').value = '';
+        }
+
+        function parseObjective() {
+            const input = document.getElementById('objective').value.trim();
+            if (!input) {
+                alert('Objective function cannot be empty.');
+                return null;
+            }
+            // Allow for potential spaces around commas
+            const coefficients = input.split(',').map(s => s.trim()).map(Number);
+
+            if (coefficients.some(isNaN)) {
+                alert('Invalid objective function coefficients. Ensure they are comma-separated numbers.');
+                return null;
+            }
+            return coefficients;
+        }
+
+        function parseConstraints() {
+            const input = document.getElementById('constraints').value.trim();
+            if (!input) {
+                 alert('Constraints cannot be empty.');
+                 return null;
+             }
+            const lines = input.split('\n').map(line => line.trim()).filter(line => line); // Filter empty lines
+            const constraints = [];
+            let numVars = -1; // Track number of variables from first valid constraint
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                 // Allow spaces around commas
+                const parts = line.split(',').map(p => p.trim());
+
+                // Expect coeffs..., relation, rhs
+                if (parts.length < 3) {
+                    alert(`Invalid constraint format (line ${i+1}): ${line}.\nExpected 'coeff1,coeff2,...,relation,rhs'.`);
+                    return null;
+                }
+
+                const relation = parts[parts.length - 2].toUpperCase(); // Tolerate <= or <=
+                if (relation !== '<=') {
+                     alert(`Invalid relation in constraint (line ${i+1}): ${line}.\nOnly '<=' is supported for automatic slack variable addition.`);
+                     return null;
+                }
+
+
+                const rhsStr = parts[parts.length - 1];
+                const coefficientsStr = parts.slice(0, -2);
+
+                const rhs = Number(rhsStr);
+                 if (isNaN(rhs)) {
+                     alert(`Invalid RHS value in constraint (line ${i+1}): '${rhsStr}'`);
+                     return null;
+                 }
+
+                const coefficients = coefficientsStr.map(Number);
+                 if (coefficients.some(isNaN)) {
+                    alert(`Invalid coefficients in constraint (line ${i+1}): '${coefficientsStr.join(',')}'`);
+                    return null;
+                }
+
+                 // Check consistency of variable count
+                if (numVars === -1) {
+                    numVars = coefficients.length;
+                    if (numVars === 0) {
+                       alert(`Constraint (line ${i+1}) seems to have no variable coefficients.`);
+                       return null;
+                    }
+                } else if (numVars !== coefficients.length) {
+                     alert(`Inconsistent number of variables found (line ${i+1}). Expected ${numVars} but got ${coefficients.length}.`);
+                     return null;
+                }
+
+                constraints.push({ coefficients, relation, rhs });
+            }
+             if(constraints.length === 0){
+                alert("No valid constraints found.");
+                return null;
+             }
+            return constraints;
+        }
+
+        function createInitialState(objectiveCoeffs, constraints) {
+            const numVars = objectiveCoeffs.length;
+            const numConstraints = constraints.length; // Number of slack variables needed
+
+            // Create variables list: x1, x2, ..., s1, s2, ...
+            const variables = [];
+            for (let i = 0; i < numVars; i++) variables.push(`x${i + 1}`);
+            for (let i = 0; i < numConstraints; i++) variables.push(`s${i + 1}`); // Slack variables
+
+            // Create initial tableau rows (using Fractions)
+            const rows = [];
+            const basis = [];
+            const cb = []; // Cost of basic variables (always 0 for slacks initially)
+
+            constraints.forEach((constraint, i) => {
+                // Convert coefficients to Fractions
+                const rowCoeffs = constraint.coefficients.map(c => frac(c));
+
+                // Add slack variable coefficients (Fraction)
+                const slackCoeffs = Array(numConstraints).fill(0).map((_, j) => frac(i === j ? 1 : 0));
+
+                // Combine coefficients and add RHS (Fraction)
+                const row = [...rowCoeffs, ...slackCoeffs, frac(constraint.rhs)];
+                rows.push(row);
+
+                // Initial basis consists of slack variables
+                basis.push(`s${i + 1}`);
+                cb.push(frac(0)); // Cost of slack variables is 0
+            });
+
+            // Objective coefficients Cj (using Fractions)
+             const cj = objectiveCoeffs.map(c => frac(c)).concat(Array(numConstraints).fill(frac(0)));
+
+
+            return {
+                variables, // Variable names ['x1', 's1', ...]
+                cj,        // Objective coefficients Cj (as Fractions) [c1, c2, ..., 0, 0, ...]
+                basis,     // Basic variable names for each row ['s1', 's2', ...]
+                cb,        // Costs of basic variables (as Fractions) [0, 0, ...]
+                rows,      // Tableau rows (as Fractions) [[...coeffs..., rhs], ...]
+                iteration: 0,
+                explanation: "Initial Tableau constructed. Ready for Dual Simplex iterations if RHS has negative values and Cj-Zj row is optimal (all <= 0).",
+                isOptimal: false,
+                isUnbounded: false, // Unboundedness isn't typical in Dual Simplex, but infeasibility is.
+                isInfeasible: false,
+                pivotInfo: null // To store {leavingIndex, enteringIndex, pivotValue}
+            };
+        }
+
+
+        function calculateZjCjZj(state) {
+            const numTotalVars = state.variables.length;
+            const zj = Array(numTotalVars).fill(frac(0));
+            let currentZ = frac(0); // Current objective function value
+
+            state.rows.forEach((row, i) => {
+                 // Ensure cb[i] is a Fraction object before multiplying
+                 const basicVarCost = (state.cb[i] instanceof Fraction) ? state.cb[i] : frac(state.cb[i]);
+                 const rhs = row[numTotalVars]; // RHS is already a Fraction
+                 currentZ = currentZ.add(basicVarCost.mul(rhs)); // Z = Sum(CB_i * RHS_i)
+
+                for (let j = 0; j < numTotalVars; j++) {
+                     const cellValue = row[j]; // Already a Fraction
+                    zj[j] = zj[j].add(basicVarCost.mul(cellValue));
+                }
+            });
+
+             // Ensure cj elements are Fractions before subtracting
+            const cjZj = state.cj.map((c_j_val, j) => {
+                const c_j = (c_j_val instanceof Fraction) ? c_j_val : frac(c_j_val);
+                return c_j.sub(zj[j]);
+            });
+
+            return { zj, cjZj, currentZ };
+        }
+
+
+        function renderState(state) {
+            const container = document.getElementById('tablesContainer');
+            const { zj, cjZj, currentZ } = calculateZjCjZj(state);
+
+            // Create table element
+            const table = document.createElement('table');
+            table.className = 'table table-bordered table-hover table-sm align-middle'; // Added bootstrap classes
+
+            const caption = table.createCaption();
+            caption.textContent = `Iteration ${state.iteration}`;
+
+            // Create header (thead)
+            const thead = table.createTHead();
+            const headerRow1 = thead.insertRow();
+            headerRow1.innerHTML = `<th scope="col">Basis</th><th scope="col">C<sub>B</sub></th>` +
+                                 state.variables.map(v => `<th scope="col">${v}</th>`).join('') +
+                                 `<th scope="col">RHS</th>`;
+                                 // Ratio column removed, calculations shown in explanation
+
+            // Cj row
+             const cjRow = thead.insertRow();
+             cjRow.innerHTML = `<td class="fw-bold">C<sub>j</sub></td><td></td>` + // Use Bootstrap fw-bold
+                             state.cj.map(c => `<td>${formatFrac(c)}</td>`).join('') +
+                             `<td></td>`;
+
+
+            // Create body (tbody)
+            const tbody = table.createTBody();
+
+             // Data rows
+            state.rows.forEach((rowData, i) => {
+                const row = tbody.insertRow();
+                // Add highlight class to the entire row if it's the leaving row
+                 if (state.pivotInfo && i === state.pivotInfo.leavingIndex) {
+                     row.classList.add('highlight-leaving-row');
+                 }
+
+                row.insertCell().outerHTML = `<th scope="row">${state.basis[i]}</th>`; // Basic variable as row header
+                row.insertCell().innerHTML = formatFrac(state.cb[i]);    // CB
+
+                // Coefficients
+                rowData.slice(0, -1).forEach((val, j) => { // Exclude RHS
+                    const cell = row.insertCell();
+                    cell.innerHTML = formatFrac(val);
+                     // Highlight entering column and pivot element
+                     if (state.pivotInfo) {
+                         if (j === state.pivotInfo.enteringIndex) {
+                             cell.classList.add('highlight-entering-col');
+                         }
+                         if (i === state.pivotInfo.leavingIndex && j === state.pivotInfo.enteringIndex) {
+                             cell.classList.add('highlight-pivot-el');
+                         }
+                     }
+                });
+
+                 // RHS cell
+                 const rhsCell = row.insertCell();
+                 rhsCell.innerHTML = formatFrac(rowData[rowData.length - 1]); // RHS value
+                 // Add column highlighting class to RHS cell as well if needed
+                 // if (state.pivotInfo && state.pivotInfo.enteringIndex === state.variables.length) { // Example if RHS was somehow pivot col
+                 //     rhsCell.classList.add('highlight-entering-col');
+                 // }
+
+            });
+
+
+            // Zj row
+            const zjRow = tbody.insertRow();
+            zjRow.innerHTML = `<td class="fw-bold">Z<sub>j</sub></td><td class="fw-bold">${formatFrac(currentZ)}</td>` + // Display Z value here
+                             zj.map(z => `<td>${formatFrac(z)}</td>`).join('') +
+                             `<td></td>`;
+
+
+            // Cj - Zj row
+            const cjZjRow = tbody.insertRow();
+            cjZjRow.innerHTML = `<td class="fw-bold">C<sub>j</sub> - Z<sub>j</sub></td><td></td>` +
+                               cjZj.map((c, j) => {
+                                    const cell = document.createElement('td');
+                                    cell.innerHTML = formatFrac(c);
+                                    // Highlight entering column in Cj-Zj row
+                                    if (state.pivotInfo && j === state.pivotInfo.enteringIndex) {
+                                        cell.classList.add('highlight-entering-col');
+                                    }
+                                    return cell.outerHTML;
+                                }).join('') +
+                               `<td></td>`;
+
+            // Prepend new table (so latest is at the top) or Append (latest at bottom)
+             // container.prepend(table); // Latest first
+            container.appendChild(table); // Latest last
+
+            // Create explanation box
+            const explanationDiv = document.createElement('div');
+            explanationDiv.className = 'explanation-box'; // Use custom class for styling
+            let explanationHTML = `<h5 class="mb-3">Iteration ${state.iteration} Analysis</h5> ${state.explanation}`;
+
+            if (state.pivotInfo) {
+                 explanationHTML += `<div class="mt-2">`;
+                 explanationHTML += `<strong>Leaving Variable Selection:</strong> Row ${state.pivotInfo.leavingIndex + 1} (Basic Variable: <strong>${state.basis[state.pivotInfo.leavingIndex]}</strong>) has the most negative RHS: ${formatFrac(state.rows[state.pivotInfo.leavingIndex][state.variables.length])}.</div>`;
+
+                 if(state.pivotInfo.enteringIndex !== null) {
+                    // Display ratios calculated
+                     let ratioText = "";
+                     if(state.pivotInfo.ratios) {
+                         ratioText = " Ratios |(Cj-Zj) / (Pivot Row Coeff)| for negative coeffs: ";
+                         let ratioStrings = [];
+                          for(const colIndex in state.pivotInfo.ratios) {
+                              if (state.pivotInfo.ratios.hasOwnProperty(colIndex)) {
+                                  const variableName = state.variables[colIndex];
+                                  const ratioValue = state.pivotInfo.ratios[colIndex];
+                                  ratioStrings.push(`${variableName}: ${formatFrac(ratioValue)}`);
+                              }
+                          }
+                          ratioText += ratioStrings.join(', ') + ".";
+                     }
+
+                     explanationHTML += `<div class="mt-2"><strong>Entering Variable Selection:</strong> Minimum ratio occurs for variable <strong>${state.variables[state.pivotInfo.enteringIndex]}</strong> (Column ${state.pivotInfo.enteringIndex + 1}). ${ratioText}</div>`;
+                     explanationHTML += `<div class="mt-2"><strong>Pivot Element:</strong> Value ${formatFrac(state.pivotInfo.pivotValue)} at [Row ${state.pivotInfo.leavingIndex + 1}, Column ${state.variables[state.pivotInfo.enteringIndex]}].</div>`;
+
+                 } else if (state.isInfeasible) {
+                      explanationHTML += `<div class="mt-2 text-danger fw-bold">No valid entering variable found (no negative coefficients in pivot row). Problem is infeasible.</div>`;
+                 }
+                 explanationHTML += `</div>`; // Close inner div
+            }
+             if (state.isOptimal) {
+                 explanationHTML += `<div class="mt-3 text-success fw-bold">Solution is Optimal and Feasible.</div>`;
+                 displaySolution(state, cjZj, currentZ); // Call function to show solution box
+             }
+            explanationDiv.innerHTML = explanationHTML;
+
+             // Prepend or append explanation box
+             // container.prepend(explanationDiv); // Matches prepended table
+            container.appendChild(explanationDiv); // Matches appended table
+
+             // Scroll to the new content
+             explanationDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+         function displaySolution(state, cjZj, currentZ) {
+             const solutionContainer = document.getElementById('solutionContainer');
+             solutionContainer.innerHTML = ''; // Clear previous solution
+
+             let solutionHTML = `<div class="solution-box"><h4>Optimal Solution Found</h4>`;
+             solutionHTML += `<p class="lead">Maximum Objective Value (P): <strong>${formatFrac(currentZ)}</strong> &nbsp; (Equivalent Minimum Z = ${formatFrac(currentZ.neg())})</p>`; // Show original Min value too
+             solutionHTML += `<h6 class="mt-3">Variable Values:</h6><ul>`;
+
+             const solution = {};
+             state.variables.forEach(v => solution[v] = frac(0)); // Initialize all variables to 0
+
+             state.basis.forEach((basicVar, i) => {
+                 const value = state.rows[i][state.variables.length]; // RHS value
+                 // Ensure value is a Fraction object before formatting
+                  const fracValue = (value instanceof Fraction) ? value : frac(value);
+                 solution[basicVar] = fracValue;
+             });
+
+             Object.entries(solution).forEach(([variable, value]) => {
+                 // Display all variables for clarity
+                 solutionHTML += `<li><strong>${variable}</strong> = ${formatFrac(value)} &nbsp; (≈ ${value.valueOf().toFixed(4)})</li>`;
+             });
+
+             solutionHTML += `</ul></div>`;
+             solutionContainer.innerHTML = solutionHTML;
+             solutionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+         }
+
+
+        function performIteration() {
+            if (!currentState || currentState.isOptimal || currentState.isInfeasible) return;
+
+            const numTotalVars = currentState.variables.length;
+            const rhsIndex = numTotalVars;
+            const { cjZj, currentZ } = calculateZjCjZj(currentState); // Calculate Cj-Zj
+
+            // --- Dual Simplex Logic ---
+             const tolerance = 1e-9; // Tolerance for floating point comparisons
+
+            // 1. Check Feasibility (Stopping Condition): Are all RHS >= -tolerance?
+            let minRhs = frac(0);
+            let leavingIndex = -1;
+            currentState.rows.forEach((row, i) => {
+                 const rhs = row[rhsIndex];
+                 if (rhs.compare(-tolerance) < 0) { // If rhs < -tolerance (i.e., negative)
+                    if (leavingIndex === -1 || rhs.compare(minRhs) < 0) { // If first negative or more negative
+                        minRhs = rhs;
+                        leavingIndex = i;
+                    }
+                }
+            });
+
+            if (leavingIndex === -1) {
+                // All RHS are effectively non-negative. Check optimality (Cj-Zj <= tolerance)
+                 const isOptimal = cjZj.every(c => c.compare(tolerance) <= 0); // cjZj <= tolerance
+
+                 if(isOptimal) {
+                     currentState.isOptimal = true;
+                     // Update explanation for the final state *before* rendering it
+                     currentState.explanation = `All RHS values are non-negative (>= ${-tolerance}) and all C<sub>j</sub>-Z<sub>j</sub> are non-positive (<= ${tolerance}). Optimal feasible solution reached.`;
+                     currentState.pivotInfo = null; // No pivot in the final step
+                     // Don't increment iteration here, renderState will show the current iteration count.
+                     renderState(currentState); // Render the final optimal state
+                     document.getElementById('nextBtn').disabled = true;
+                     // alert('Optimal and feasible solution reached!'); // Alert can be redundant with the solution box
+                     return;
+                 } else {
+                     // This state (Feasible but not Cj-Zj optimal) means Dual Simplex cannot proceed.
+                      currentState.explanation = `Tableau is feasible (all RHS >= 0) but not Cj-Zj optimal (some Cj-Zj > 0). Dual Simplex cannot proceed further. Standard Simplex method would be required.`;
+                      currentState.pivotInfo = null;
+                      renderState(currentState); // Render the state explaining why it stopped
+                     alert("Tableau is feasible but not Cj-Zj optimal. Dual Simplex cannot proceed.");
+                      document.getElementById('nextBtn').disabled = true;
+                     return;
+                 }
+            }
+
+            // --- Proceed with Dual Simplex Iteration ---
+             currentState.iteration++; // Increment iteration count for the current step
+
+            // 2. Select Leaving Variable (Pivot Row): Row 'leavingIndex' found above.
+            const leavingVar = currentState.basis[leavingIndex];
+            const pivotRow = currentState.rows[leavingIndex];
+
+            // 3. Select Entering Variable (Pivot Column): Minimum Ratio Test
+            let minRatio = null;
+            let enteringIndex = null;
+            const ratios = {}; // Store ratios calculated {columnIndex: ratioValue}
+
+             for (let j = 0; j < numTotalVars; j++) {
+                 const pivotRowCoeff = pivotRow[j];
+
+                 // Consider only NEGATIVE coefficients in the pivot row for the ratio test
+                 if (pivotRowCoeff.compare(-tolerance) < 0) { // pivotRowCoeff < -tolerance
+                     const cjZj_j = cjZj[j];
+                     // Ratio: | (Cj - Zj)_j / pivotRowCoeff_j |
+                     const ratio = cjZj_j.div(pivotRowCoeff).abs();
+                     ratios[j] = ratio; // Store ratio for explanation
+
+                     if (enteringIndex === null || ratio.compare(minRatio) < 0) {
+                         minRatio = ratio;
+                         enteringIndex = j;
+                     } else if (ratio.compare(minRatio) === 0) {
+                        // Tie-breaking rule: Bland's rule (choose smallest index) is robust
+                        if (j < enteringIndex) {
+                            enteringIndex = j;
+                        }
+                     }
+                 }
+             }
+
+
+            // 4. Check for Infeasibility
+            if (enteringIndex === null) {
+                // No negative coefficient found in the pivot row where RHS is negative. Problem is infeasible.
+                currentState.isInfeasible = true;
+                 // Update explanation for the final state *before* rendering it
+                currentState.explanation = `Selected leaving row ${leavingIndex+1} (Basic Var: ${leavingVar}, RHS = ${formatFrac(minRhs)}) has no strictly negative coefficients for ratio test. The problem is infeasible.`;
+                currentState.pivotInfo = { leavingIndex: leavingIndex, enteringIndex: null, pivotValue: null, ratios: null }; // Indicate leaving row but no entry
+                renderState(currentState); // Render the final infeasible state
+                document.getElementById('nextBtn').disabled = true;
+                alert('Problem is infeasible!');
+                return;
+            }
+
+            // 5. Prepare for Pivot Operation
+            const enteringVar = currentState.variables[enteringIndex];
+            const pivotValue = pivotRow[enteringIndex];
+
+             // Store pivot info *before* modifying the state for correct rendering highlight in the *next* render call
+             currentState.pivotInfo = {
+                leavingIndex: leavingIndex,
+                enteringIndex: enteringIndex,
+                pivotValue: pivotValue,
+                ratios: ratios // Pass ratios for explanation
+            };
+             currentState.explanation = `Performing pivot operation.`; // Initial explanation for this iteration step
+             // Render the state *showing the selection* before performing the pivot calculation
+             renderState(currentState);
+
+             // --- Perform Pivot Calculation ---
+             // (This calculation modifies the currentState directly)
+
+             // Update Basis and CB
+            currentState.basis[leavingIndex] = enteringVar;
+            currentState.cb[leavingIndex] = currentState.cj[enteringIndex]; // Cost of the entering variable
+
+            // Normalize Pivot Row (using the already identified pivotRowData = currentState.rows[leavingIndex])
+            const pivotRowData = currentState.rows[leavingIndex];
+            // Divide pivot row by pivot value (ensure pivotValue is not near zero, though enteringIndex selection prevents this)
+             if (pivotValue.abs().compare(tolerance) < 0) {
+                  console.error("Pivot value is too close to zero.", pivotValue.valueOf());
+                  alert("Error: Pivot value is near zero. Cannot proceed.");
+                  document.getElementById('nextBtn').disabled = true;
+                  return; // Avoid division by zero
+             }
+
+            for (let j = 0; j <= numTotalVars; j++) { // Include RHS
+                pivotRowData[j] = pivotRowData[j].div(pivotValue);
+                 // Clean up near-zero values resulting from division
+                 if (pivotRowData[j].abs().compare(tolerance) < 0) {
+                     pivotRowData[j] = frac(0);
+                 }
+            }
+
+
+            // Update Other Rows
+            currentState.rows.forEach((row, i) => {
+                if (i === leavingIndex) return; // Skip the pivot row itself
+
+                const factor = row[enteringIndex]; // Element in entering column for this row
+                if (factor.abs().compare(tolerance) < 0) return; // No change needed if factor is effectively 0
+
+                for (let j = 0; j <= numTotalVars; j++) { // Include RHS
+                    const pivotRowValue = pivotRowData[j]; // Already normalized
+                    row[j] = row[j].sub(factor.mul(pivotRowValue));
+                    // Clean up near-zero values resulting from subtraction
+                    if (row[j].abs().compare(tolerance) < 0) {
+                         row[j] = frac(0);
+                    }
+                }
+            });
+
+            // Clear pivot info after calculations, ready for the next iteration's selection phase
+            // currentState.pivotInfo = null; // This might be premature if we want the highlight to persist until next click?
+            // Let's keep pivotInfo until the *start* of the next iteration calculation.
+
+            // Re-enable button for next potential iteration if not finished
+             document.getElementById('nextBtn').disabled = false;
+
+        } // End performIteration
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
