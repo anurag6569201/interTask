@@ -17,7 +17,7 @@ const BudgetProgress: React.FC<BudgetProgressProps> = ({ budgets }) => {
     <div className="p-4 md:p-5 bg-white rounded-lg shadow-md dark:bg-gray-800 h-full">
       <h3 className="mb-3 md:mb-4 text-lg font-medium text-gray-800 dark:text-white">Budget Progress</h3>
       
-      <div className="space-y-4 max-h-[400px] md:max-h-none overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+      <div className="space-y-4 md:max-h-none overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
         {budgets.sort((a,b) => (b.spent / b.budgeted) - (a.spent / a.budgeted)).map((budget) => { // Sort by % spent
           const percentage = budget.budgeted > 0 ? Math.min(Math.round((budget.spent / budget.budgeted) * 100), 100) : 0;
           const remaining = budget.budgeted - budget.spent;

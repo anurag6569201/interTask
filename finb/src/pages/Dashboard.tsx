@@ -96,15 +96,15 @@ const Dashboard: React.FC = () => {
       </div>
       
       {/* Transactions and Budget Progress */}
-      <div className="grid gap-4 mb-6 lg:grid-cols-3 lg:gap-6">
+      <div className=" gap-4 mb-6 lg:grid-cols-3 lg:gap-6">
         <div className="lg:col-span-2">
           {/* Ensure transactions table on dashboard shows limited items */}
           <TransactionsTable transactions={mockFinancialData.transactions} /> 
         </div>
-        <div>
+      </div>
+              <div>
           <BudgetProgress budgets={mockFinancialData.budgets} />
         </div>
-      </div>
     </div>
   );
 };
