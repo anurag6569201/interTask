@@ -72,6 +72,7 @@ Video Demo - [https://drive.google.com/drive/folders/18gdmARV8ObsxIXDsohgLMGuit5
 
 ## Project Structure
 
+```
 FINB/
 ├── public/
 │ └── ... (static assets)
@@ -120,6 +121,7 @@ FINB/
 ├── tailwind.config.js
 └── tsconfig.json
 └── tsconfig.node.json
+```
 
 ## Setup and Running the Project
 
